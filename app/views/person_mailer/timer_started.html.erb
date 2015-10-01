@@ -1,0 +1,7 @@
+<p>Hello, <%= @person.firstname %>!</p>
+
+<p>Your started a timer at <%= @time_entry.spent_on.strftime('%A %d %b') %>.</p>
+
+<p><%= link_to "Your timer", time_day_url(@time_entry.spent_on.year, @time_entry.spent_on.month, @time_entry.spent_on.day) %></p>
+
+<p>The imput.io happy team</p>

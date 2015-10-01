@@ -1,0 +1,120 @@
+<% javascript 'jquery-dynamic-selectable.js' %>
+<% javascript 'time.js' %>
+
+<script type="text/javascript">
+// https://gist.github.com/peterchester/2980896
+function filterTimeFormat(time) {
+  var time_format = time.match(/([\d]*):([\d]+)/);
+  var float_format = time.match(/[0-9]+([\.|,][0-9]+)?/g);
+  var response = null;
+
+  if (time_format != null) {
+    hours = parseInt(time_format[1] * 3600);
+    minutes = parseInt(time_format[2] * 60);
+    response = hours + minutes;
+    response = parseFloat(response/3600).toFixed(2);
+  } else if (float_format != null) {
+    response = time.replace(/[,]/g, '.');
+  }
+  if (time == '') {
+    response = '';
+  }
+  return response;
+}
+
+function setTextButton(field){
+  btn = $('form.simple_form .btn-success');
+  if(field.val().length > 0) {
+    btn.val('Save time entry');
+    btn.removeClass('disabled');
+  } else {
+<% if action_name == "edit" or @selected_date != Date.today %>
+    btn.val('Save time entry');
+    btn.addClass('disabled');
+<% else %>
+    btn.val('Start timer');
+<% end -%>
+  }
+}
+
+$(function() {
+  setTextButton($('#time_entry_hours'));
+  $('form.simple_form').submit(function(event){
+    hours = filterTimeFormat($('#time_entry_hours').val());
+    if(hours == null) {
+      return false;
+    } else {
+      $('#time_entry_hours').val(hours);
+    }
+  });
+  $('#time_entry_hours').keyup(function(event){
+    setTextButton($(this));
+  });
+});
+</script>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget stacked">
+      <div class="widget-header">
+        <h3>Time entry</h3>
+      </div> <!-- /widget-header -->
+      <div class="widget-content">
+        <%= simple_form_for @time_entry, html: { class: "form-horizontal col-md-7"} do |f| %>
+          <%= f.error_notification %>
+          <fieldset>
+            <%= hidden_field_tag(:year, @selected_date.year) %>
+            <%= hidden_field_tag(:month, @selected_date.month) %>
+            <%= hidden_field_tag(:day, @selected_date.day) %>
+            <% if request.referer %>
+              <%= hidden_field_tag(:from, 'dashboard') if request.referer.include?('dashboard') %>
+            <% end -%>
+            <div class="form-group">
+              <%= f.label :spent_on, class: "col-lg-4" %>
+              <%= f.input :spent_on, as: :string, readonly: true, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+            </div>
+            <div class="form-group">
+              <%= f.label :project_id, class: "col-lg-4" %>
+              <%= f.association :project, collection: @clients, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control", data: {
+                    dynamic_selectable_url: dynamic_select_tasks_path(':project_id'),
+                    dynamic_selectable_target: '#time_entry_task_id'
+                  }}, include_blank: false, as: :grouped_select, group_method: :person_projects
+              %>
+            </div>
+            <div class="form-group">
+              <%= f.label :task_id, class: "col-lg-4" %>
+              <%= f.association :task, collection: @time_entry.project.tasks, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"}, include_blank: false
+              %>
+            </div>
+            <div class="form-group">
+              <%= f.label :hours, class: "col-lg-4" %>
+              <%
+              if use_nice_time? 
+                value = nice_time(@time_entry.hours) if @time_entry.hours
+                placeholder = "00:00"
+                title = "HH:MM or decimal"
+              else
+                value = @time_entry.hours if @time_entry.hours
+                placeholder = "0.00"
+                title = "Decimal or HH:MM"
+              end %>
+              <%= f.input :hours, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control", type: :text, value: value, pattern: "((0*[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]))|([0-9]+([\.|,][0-9]+)?)", placeholder: placeholder, title: title, readonly: @time_entry.timer_running } %>
+            </div>
+            <div class="form-group">
+              <%= f.label :notes, class: "col-lg-4" %>
+              <%= f.input :notes, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+            </div>
+          </fieldset>
+
+          <div class="form-actions text-center">
+            <%= f.button :submit, "Start timer / Save time entry", class: "btn btn-success", id: "dynamic_selectable_button" %>
+            <%= link_to "Cancel", time_day_path(@selected_date.year,@selected_date.month,@selected_date.day), class: "btn btn-default" %>
+            <% if action_name == "edit" %>
+              <%= link_to 'Delete', time_entry_path(@time_entry), class: "btn btn-danger", method: :delete, data: { confirm: 'Are you sure?' } %>
+            <% end -%>
+          </div>
+        <% end %>
+      </div> <!-- /widget-content -->
+    </div> <!-- /widget -->         
+  </div> <!-- /.col-md-12 -->
+</div> <!-- /.row -->

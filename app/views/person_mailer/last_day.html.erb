@@ -1,0 +1,52 @@
+<% content_for :title do %>
+  Your time entries for yesterday
+<% end -%>
+
+<% content_for :table do %>
+<tr>
+  <td valign="top" style="padding-top:0; padding-bottom:0;">
+    <table border="0" cellpadding="10" cellspacing="0" width="100%" class="templateDataTable">
+        <tr>
+            <th scope="col" valign="top" width="50%" class="dataTableHeading">
+              Project (Client)
+            </th>
+            <th scope="col" valign="top" width="25%" class="dataTableHeading">
+              Task
+            </th>
+            <th scope="col" valign="top" width="25%" class="dataTableHeading">
+              Hours
+            </th>
+        </tr>
+        <% @time_entries.each do |time_entry| %>
+        <tr>
+            <td valign="top" class="dataTableContent" >
+              <strong><%= time_entry.project.name %></strong> (<%= time_entry.project.client.name %>)
+            </td>
+            <td valign="top" class="dataTableContent">
+              <%= time_entry.task.name %>
+            </td>
+            <td valign="top" class="dataTableContent">
+              <% if @person.time_decimal %>
+                <%= time_entry.hours %> hours
+              <% else %>
+                <%= decimal_time_to_hours(time_entry.hours) %>
+              <% end -%>
+            </td>
+        </tr>
+        <% end -%>
+        <tr>
+            <td valign="top" class="dataTableHeading" colspan="2">
+              <strong>Total</strong>
+            </td>
+            <td valign="top" class="dataTableHeading">
+              <% if @person.time_decimal %>
+                <%= TimeEntry.day_time(@person, Date.yesterday) %> hours
+              <% else %>
+                <%= decimal_time_to_hours(TimeEntry.day_time(@person, Date.yesterday)) %>
+              <% end -%>
+            </td>
+        </tr>
+    </table>
+  </td>
+</tr>
+<% end -%>

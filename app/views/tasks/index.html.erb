@@ -1,0 +1,58 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget stacked ">
+      <div class="widget-header">
+        <h3>Listing tasks</h3>
+      </div> <!-- /.widget-header -->
+      <div class="widget-content">
+        <p>
+          <%= link_to 'New Task', new_task_path, class: "btn btn-primary" %>
+          <%= link_to 'Export to Excel', tasks_path(format: "xlsx"), class: "btn btn-default" %>
+          <%= link_to 'Export to CSV', tasks_path(format: "csv"), class: "btn btn-default" %>
+          <%= link_to 'Import from CSV', import_tasks_path, class: "btn btn-default" %>
+        </p>
+        <% if @grouped_tasks[0].size + @grouped_tasks[1].size > 0 %>
+          <% @grouped_tasks.each_with_index do |group_task, index| %>
+            <% if @grouped_tasks[index].size > 0 %>
+              <div class="panel panel-default">
+                <div class="panel-heading">
+                  <h4 class="panel-title">
+                    <% if index == 0 %>
+                      Common tasks
+                    <% else %>
+                      Other tasks
+                    <% end %>
+                  </h4>
+                </div>
+                <div class="panel-body">
+                  <div class="list-group">
+                    <% @grouped_tasks[index].each do |task| %>
+                      <div class="list-group-item">
+                        <% if person_admin? or !(task.projects & current_person.managed_projects).empty? %>
+                          <div class="pull-right">
+                            <%= link_to 'Edit', edit_task_path(task), class: "btn btn-default btn-xs" %>
+                            <% if task.projects.size == 0 and @tasks.size > 1 %>
+                              <%= link_to 'Delete', task, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger btn-xs" %>
+                            <% else %>
+                              <%= link_to 'Delete', '#', class: "btn btn-danger btn-xs disabled" %>
+                            <% end -%>
+                          </div>
+                        <% end -%>
+                        <% if person_admin? or !(task.projects & current_person.managed_projects).empty? %>
+                          <h5 class="list-group-item-heading"><%= link_to task.name, edit_task_path(task) %></h5>
+                        <% else -%>
+                          <h5 class="list-group-item-heading"><%= task.name %></h5>
+                        <% end -%>
+                        <p class="list-group-item-text">Assigned to <%= pluralize(task.projects.enabled.size, 'project') %></p>
+                      </div>
+                    <% end -%>
+                  </div>
+                </div>
+              </div>
+            <% end -%>
+          <% end -%>
+        <% end -%>
+      </div> <!-- /widget-content -->
+    </div> <!-- /widget -->
+  </div> <!-- /.col-md-12 -->
+</div> <!-- /.row -->

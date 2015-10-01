@@ -1,0 +1,41 @@
+$(function () {
+
+  if(running) {
+    <% if !@stopped_time_entry.nil? -%>
+    setField('table.day tr.success td.time', "<%= nice_time(@stopped_time_entry.hours) %>");
+    setField('table.day tr.timer td.time', "<%= nice_time(TimeEntry.day_time(current_person, @stopped_time_entry.spent_on)) %>");
+    setField('table.day th.timer span.time', "<%= nice_time(TimeEntry.day_time(current_person, @stopped_time_entry.spent_on)) %>");
+    setField('table.day th.timer ~ th.total span.time', "<%= nice_time(TimeEntry.week_total_time(current_person, @stopped_time_entry.spent_on.beginning_of_week)) %>");
+
+    setField('table.dashboard td.time', "<%= nice_time(@stopped_time_entry.hours) %>");
+    <% end -%>
+
+    if($("#time-entries .success").length) {
+      $("#time-entries .success .timer a").removeClass("btn-danger").addClass("btn-success");
+      $("#time-entries .success .timer a").html('<i class="fa fa-play"></i> Start</a>');
+      $("#time-entries .success .timer a").attr("href", $("#time-entries .success .timer a").attr("href").replace("stop", "start"));
+      $("#time-entries .success").removeClass("success");
+    }
+    if($("table.day tfoot tr.timer").length)
+      $("table.day tfoot tr.timer").removeClass("timer");
+    $("table.day th.timer").removeClass("timer");
+    clearInterval(globalTimer);
+  }
+
+  $("#timer_<%= @time_entry.id %> .timer a").removeClass("btn-success").addClass("btn-danger");
+  $("#timer_<%= @time_entry.id %> .timer a").html('<i class="fa fa-circle-o-notch fa-spin"></i> Stop');
+  $("#timer_<%= @time_entry.id %> .timer a").attr("href", $("#timer_<%= @time_entry.id %> .timer a").attr("href").replace("start", "stop"));
+  $("#timer_<%= @time_entry.id %>").addClass("success");
+
+  $("th.info").addClass("timer");
+  $("tfoot tr").addClass("timer");
+
+  globalTimer = setInterval(updateValues, interval, increment);
+  running = true;
+
+  if($('.timer .btn-sm').hasClass('disabled')){
+    $('.timer .btn-sm').removeClass('disabled');
+    $('.timer .btn-sm').popover('hide');
+  }
+
+});

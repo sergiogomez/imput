@@ -1,0 +1,24 @@
+$(function () {
+
+  setField('table.day tr.success td.time', "<%= nice_time(@time_entry.hours) %>");
+  setField('table.day tr.timer td.time', "<%= nice_time(TimeEntry.day_time(current_person, @time_entry.spent_on)) %>");
+  setField('table.day th.timer span.time', "<%= nice_time(TimeEntry.day_time(current_person, @time_entry.spent_on)) %>");
+  setField('table.day th.timer ~ th.total span.time', "<%= nice_time(TimeEntry.week_total_time(current_person, @time_entry.spent_on.beginning_of_week)) %>");
+
+  setField('table.dashboard td.time', "<%= nice_time(@time_entry.hours) %>");
+
+  $("#timer_<%= @time_entry.id %> .timer a").removeClass("btn-danger").addClass("btn-success");
+  $("#timer_<%= @time_entry.id %> .timer a").html('<i class="fa fa-play"></i> Start</a>');
+  $("#timer_<%= @time_entry.id %> .timer a").attr("href", $("#timer_<%= @time_entry.id %> .timer a").attr("href").replace("stop", "start"));
+  $("#timer_<%= @time_entry.id %>").removeClass("success");
+  $("table.day tfoot tr.timer").removeClass("timer");
+  $("table.day th.timer").removeClass("timer");
+
+  clearInterval(globalTimer);
+  running = false;
+
+  if(!same_day && $("table.day").length >0) {
+    $("#timer_<%= @time_entry.id %> .timer a").addClass("disabled");
+  }
+
+});

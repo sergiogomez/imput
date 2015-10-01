@@ -1,0 +1,32 @@
+<% stylesheet 'signin.css' %>
+
+<div class="account-container stacked">
+  <div class="content clearfix">
+    <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
+      <%= f.error_notification %>
+      <h1>Change password</h1>
+      <div class="login-fields">
+        <%= f.input :reset_password_token, as: :hidden %>
+        <%= f.full_error :reset_password_token %>
+        
+        <div class="field">
+          <%= f.input :password, label: "New password", required: false, placeholder: "New password", autofocus: true, input_html: { class: "form-control input-lg password-field" } %>
+        </div> <!-- /field -->
+        <div class="field">
+          <%= f.input :password_confirmation, label: "Confirm your new password", placeholder: "Confirm your new password", required: false, input_html: { class: "form-control input-lg password-field" } %>
+        </div> <!-- /field -->
+      </div>
+
+      <div class="login-actions">
+        <div class="form-actions">
+          <%= f.button :submit, "Change my password", class: "login-action btn btn-primary" %>
+        </div>
+      </div> <!-- .actions -->
+    <% end -%>
+  </div>
+</div>
+
+<!-- Text Under Box -->
+<div class="login-extra">
+  <%= render "devise/shared/links" %>
+</div> <!-- /login-extra -->

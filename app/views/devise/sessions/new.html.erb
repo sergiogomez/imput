@@ -1,0 +1,33 @@
+<% stylesheet 'signin.css' %>
+
+<div class="account-container stacked">
+  <div class="content clearfix">
+    <%= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+      <%= f.error_notification %>
+      <h1>Sign In</h1>
+      <div class="login-fields">
+        <p>Sign in using your registered account:</p>
+        <div class="field">
+          <%= f.input :email, autofocus: true, placeholder: "Email", input_html: { class: "form-control input-lg username-field" } %>
+        </div> <!-- /field -->
+        <div class="field">
+          <%= f.input :password, required: true, placeholder: "Password", input_html: { class: "form-control input-lg password-field" } %>
+        </div> <!-- /field -->
+      </div> <!-- /login-fields -->
+      <div class="login-actions">
+        <% if devise_mapping.rememberable? %>
+        <span class="login-checkbox">
+            <%= f.input_field :remember_me, as: :boolean %>
+            <%= f.label :remember_me, "Remember me" %>
+        </span>
+        <% end -%>
+        <%= f.button :submit, "Sign in", class: "login-action btn btn-primary" %>
+      </div> <!-- .actions -->
+    <% end %>
+  </div> <!-- /content -->
+</div> <!-- /account-container -->
+
+<!-- Text Under Box -->
+<div class="login-extra">
+  <%= render "devise/shared/links" %>
+</div> <!-- /login-extra -->

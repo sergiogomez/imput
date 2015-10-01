@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>imput.io - Recover your time - Free tracking time software in the cloud</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <%= stylesheet_link_tag 'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= stylesheet_link_tag '//fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,400,600', media: 'all' %>
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+  <%= yield(:head) %>
+  <%= csrf_meta_tags %>
+</head>
+<body data-no-turbolink>
+<nav class="navbar navbar-inverse" role="navigation">
+
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/">imput.io</a>
+    </div>
+
+    <div class="collapse navbar-collapse navbar-ex1-collapse">
+      <ul class="nav navbar-nav navbar-right">
+        <% if person_signed_in? %>
+      <li>
+        <% switch_to = current_person.time_decimal ? 'HH:MM' : 'decimal' %>
+        <%= link_to "Switch to #{switch_to}", switch_time_format_path, method: :patch %>
+      </li>
+      <li class="dropdown">
+        <a href="javscript:;" class="dropdown-toggle" data-toggle="dropdown">
+          <%= fa_icon('user') %>
+          <%= current_person.fullname %>
+          <b class="caret"></b>
+        </a>
+        <ul class="dropdown-menu">
+          <li><%= link_to "My profile", edit_profile_path %></li>
+          <% if person_admin? %>
+            <li><%= link_to "Account settings", show_account_path %></li>
+            <li><%= link_to "Import data", imports_path %></li>
+          <% end -%>
+          <li class="divider"></li>
+          <li><%= link_to "Sign out", destroy_person_session_path, method: :delete %></li>
+        </ul>
+      </li>
+      <% else %>
+      <li>
+        <%= link_to "Create an account", new_person_registration_path %>
+      </li>
+      <li>
+        <%= link_to "Sign in", new_person_session_path %>
+      </li>
+      <% end -%>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div> <!-- /.container -->
+</nav>
+
+<% if person_signed_in? %>
+<div class="subnavbar">
+  <div class="subnavbar-inner">
+    <div class="container">
+      <%= render_navigation %>
+    </div> <!-- /container -->
+  </div> <!-- /subnavbar-inner -->
+</div> <!-- /subnavbar -->
+<% else %>
+<br />
+<% end -%>
+
+<div class="main">
+  <div class="container">
+    <%= render 'layouts/messages' %>
+    <%= yield %>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="container">
+    <div class="row">
+      <div id="footer-copyright" class="col-md-6">
+        <a href="http://imput.io/">imput.io</a> is a product of <a href="http://develrock.com/">develRock</a>
+      </div> <!-- /span6 -->
+    </div> <!-- /row -->
+  </div> <!-- /container -->
+</div> <!-- /footer -->
+</body>
+</html>

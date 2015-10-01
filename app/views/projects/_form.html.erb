@@ -1,0 +1,87 @@
+<% javascript 'projects.js' %>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget stacked">
+      <div class="widget-header">
+        <h3>Project</h3>
+      </div> <!-- /widget-header -->
+      <div class="widget-content">
+        <%= simple_form_for @project, html: { class: "form-horizontal col-md-7"} do |f| %>
+          <%= f.error_notification %>
+          <fieldset>
+            <div class="form-group">
+              <%= f.label :name, class: "col-lg-4" %>
+              <%= f.input :name, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"}, autofocus: true %>
+            </div>
+            <div class="form-group">
+              <%= f.label :notes, class: "col-lg-4" %>
+              <%= f.input :notes, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+            </div>
+            <% if person_admin? %>
+              <div class="form-group">
+                <%= f.label :client_id, class: "col-lg-4", required: true %>
+                <%= f.association :client, collection: current_person.company.clients.enabled, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"}, include_blank: false %>
+              </div>
+              <%= f.simple_fields_for :client do |p| %>
+              <div id="add-client">
+                <div class="form-group input">
+                  <%= p.label :name, "New client name", class: "control-label col-lg-4 input-sm" %>
+                  <%= p.input :name, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control input-sm"}, required: false %>
+                </div>
+                <div class="form-group actions">
+                  <div class="col-lg-8 col-lg-offset-4 form-actions text-center">
+                    <button class="btn btn-success btn-sm client-submit">Add client</button>
+                    <button class="btn btn-default btn-sm client-cancel">Cancel</button>
+                  </div>
+                </div>
+              </div>
+              <% end %>
+            <% else %>
+              <div class="form-group">
+                <%= f.label :client_id, class: "col-lg-4", required: true %>
+                <%= f.input :client, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control", readonly: true, value: @project.client.name } %>
+              </div>
+            <% end -%>
+            <div class="form-group">
+              <%= f.label :task_ids, "Tasks", class: "col-lg-4 control-label", required: true %>
+              <div class="col-lg-8">
+                <%= f.association :tasks, collection: current_person.company.tasks, label: false, input_html: { class: "form-control"}, include_blank: false, required: true %>
+              </div>
+            </div>
+            <div class="form-group" id="new-task">
+              <div class="col-lg-8 col-lg-offset-4 form-actions text-center">
+                <button class="btn btn-success btn-xs">Add a new task</button>
+              </div>
+            </div>
+            <%= f.simple_fields_for :tasks do |p| %>
+            <div id="add-task">
+              <div class="form-group input">
+                <%= p.label :task, "New task name", class: "control-label col-lg-4 input-sm" %>
+                <%= p.input :task, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control input-sm"}, required: false %>
+              </div>
+              <div class="form-group actions">
+                <div class="col-lg-8 col-lg-offset-4 form-actions text-center">
+                  <button class="btn btn-success btn-sm task-submit">Add task</button>
+                  <button class="btn btn-default btn-sm task-cancel">Cancel</button>
+                </div>
+              </div>
+            </div>
+            <% end -%>
+            <div class="form-group">
+              <%= f.label :person_ids, "People", class: "col-lg-4 control-label", required: true %>
+              <div class="col-lg-8">
+                <%= f.association :people, collection: current_person.company.people.enabled, label: false, label_method: :fullname, input_html: { class: "form-control"}, include_blank: false, required: true %>
+              </div>
+            </div>
+          </fieldset>
+
+          <div class="col-lg-8 col-lg-offset-4 form-actions text-center">
+            <%= f.button :submit, class: "btn btn-success form-submit" %>
+            <%= link_to "Cancel", projects_path, class: "btn btn-default" %>
+          </div>
+        <% end %>
+      </div> <!-- /widget-content -->
+    </div> <!-- /widget -->         
+  </div> <!-- /.col-md-12 -->
+</div> <!-- /.row -->

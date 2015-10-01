@@ -1,0 +1,7 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Clients") do |sheet|
+  sheet.add_row ["Client Name", "Address"] ## Header values of Excel
+  @clients.each do |client|
+    sheet.add_row [client.name, client.address]
+  end
+end

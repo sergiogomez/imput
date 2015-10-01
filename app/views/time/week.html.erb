@@ -1,0 +1,233 @@
+<% javascript 'timers.js' %>
+<%
+if !current_person.current_time_entry.nil?
+  if use_nice_time?
+    timer = (DateTime.now.to_f - current_person.current_time_entry.begun_on.to_f).round
+  else
+    timer = ((DateTime.now.to_f - current_person.current_time_entry.begun_on.to_f)/3600).round(2)
+  end
+  timer = 0 if timer < 0 or !current_person.current_time_entry.timer_running
+  running = current_person.current_time_entry.timer_running
+else
+  timer = 0
+  running = false
+end
+%>
+<script type="text/javascript">
+// https://gist.github.com/peterchester/2980896
+function filterTimeInput(time) {
+  var time_format = time.match(/([\d]*):([\d]+)/);
+  var float_format = time.match(/[0-9]+([\.|,][0-9]+)?/g);
+  var response = null;
+
+  if (time_format != null) {
+    hours = parseInt(time_format[1] * 3600);
+    minutes = parseInt(time_format[2] * 60);
+    response = hours + minutes;
+    response = parseFloat(response/3600).toFixed(2);
+  } else if (float_format != null) {
+    response = time.replace(/[,]/g, '.');
+  }
+  if (time == '') {
+    response = 0;
+  }
+  return response;
+}
+
+$(function() {
+  $('form#week_form').submit(function(event){
+    var errors = 0;
+    var values = $("form#week_form input.form-control").map(function(){
+      hours = filterTimeInput($(this).val());
+      if(hours == null) {
+        errors++;
+      } else {
+        $(this).val(hours);
+      }
+    });
+    if(errors > 0) {
+      return false;
+    }
+  });
+});
+
+  timer = <%= timer %>;
+  running = <%= running %>;
+  nice = <%= use_nice_time? %>;
+</script>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget stacked ">
+      <div class="widget-header">
+        <h3>Week time</h3>
+      </div> <!-- /.widget-header -->
+      <div class="widget-content">
+        <% if current_person.projects.size > 0 %>
+          <div class="table-responsive">
+            <%= form_for(time_week_path, html: { id: 'week_form' }) do |f| %>
+              <% if params[:year] %>
+                <%= hidden_field_tag(:year, params[:year]) %>
+                <%= hidden_field_tag(:month, params[:month]) %>
+                <%= hidden_field_tag(:day, params[:day]) %>
+              <% end -%>
+              <table id="calendar" class="table table-bordered week">
+                <thead>
+                  <tr>
+                    <th class="text-center col-md-4">
+                      <h3>Week #<%= @selected_date.cweek %> - <%= @selected_date.beginning_of_week.to_formatted_s(:short) %> to <%= (@selected_date.beginning_of_week + 6).to_formatted_s(:short) %></h3>
+                      <div class="btn-group btn-group-sm">
+                        <%= link_to fa_icon("chevron-circle-left"), time_week_path((@selected_date.beginning_of_week - 7).year,(@selected_date.beginning_of_week - 7).month,(@selected_date.beginning_of_week - 7).day), class: "btn btn-default" %>
+                        <%= link_to "This Week", time_week_path, class: "btn btn-default #{@selected_date.beginning_of_week == Date.today.beginning_of_week ? 'disabled' : ''}" %>
+                        <%= link_to fa_icon("chevron-circle-right"), time_week_path((@selected_date.beginning_of_week + 7).year,(@selected_date.beginning_of_week + 7).month,(@selected_date.beginning_of_week + 7).day), class: "btn btn-default" %>
+                      </div>
+                    </th>
+                    <% (0..6).each do |n| %>
+                      <th class="col-md-1<%= @selected_date.beginning_of_week + n == Date.today ? ' success' : '' %>">
+                        <%= link_to (@selected_date.beginning_of_week + n).strftime('%a%n%d/%m').gsub(/\n/, '<br />').html_safe, time_day_path((@selected_date.beginning_of_week + n).year, (@selected_date.beginning_of_week + n).month, (@selected_date.beginning_of_week + n).day) %>
+                      </th>
+                    <% end -%>
+                    <th class="col-md-1" colspan="2">
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% if @rows.size > 0 %>
+                    <% @rows.each do |row| %>
+                      <tr class="text-center">
+                        <td class="project-task">
+                          <span class="btn btn-default btn-sm">
+                            <strong><%= row.project.client.name %>:</strong>
+                            <%= row.project.name %> - <%= row.task.name %>
+                          </span>
+                        </td>
+                        <% (0..6).each do |n| %>
+                          <% if !current_person.current_time_entry.nil? and current_person.current_time_entry.spent_on == @selected_date.beginning_of_week + n and current_person.current_time_entry.project == row.project and current_person.current_time_entry.task == row.task %>
+                            <td class="col-lg-1 timer">
+                              <%= nice_time(TimeEntry.get_time_entry(current_person, @selected_date.beginning_of_week + n, row.project, row.task)) %>
+                            </td>
+                          <% else %>
+                            <%
+                            value = TimeEntry.get_time_entry(current_person, @selected_date.beginning_of_week + n, row.project, row.task)
+                            max = (value == current_person.max_time_entry(@selected_date.beginning_of_week + n) and value > 0)
+                            if use_nice_time?
+                              if value > 0
+                                value = nice_time(value)
+                              else
+                                value = ''
+                              end
+                              placeholder = "00:00"
+                              title = "HH:MM or decimal"
+                            else
+                              value = '' if value == 0
+                              placeholder = "0.00"
+                              title = "Decimal or HH:MM"
+                            end %>
+                            <td class="col-lg-1<%= " max" if max %>">
+                              <%= f.text_field :hours, class: "form-control text-center", id: "day#{n}_project#{row.project.id}_task#{row.task.id}", name: "day#{n}_project#{row.project.id}_task#{row.task.id}", value: value, pattern: "((0*[0-9]|1[0-9]|2[0-3])(:[0-5][0-9]))|([0-9]+([\.|,][0-9]+)?)", placeholder: placeholder, title: title %>
+                            </td>
+                          <% end -%>
+                        <% end -%>
+                        <%
+                          value = TimeEntry.week_task_time(current_person, @selected_date.beginning_of_week, row.project, row.task)
+                          week_max = (value == current_person.max_week_time_entry(@selected_date.beginning_of_week) and value > 0)
+                        %>
+                        <td class="total<%= " max" if week_max %>">
+                          <strong><%= nice_time(value) %></strong>
+                        </td>
+                        <td class="delete">
+                          <% if row.time_entries(current_person).size == 0 -%>
+                            <%= link_to fa_icon('times'), row_path(row), method: :delete, class: 'delete' %>
+                          <% end -%>
+                        </td>
+                      </tr>
+                    <% end -%>
+                  <% elsif @disabled_rows.size == 0 %>
+                  <tr>
+                    <td class="no-records" colspan="9">
+                      There is no time entries.
+                      <% if current_person.time_entries.size == 0 or current_person.last_week_rows.size == 0 %>
+                        <%= link_to 'Add your first week time entry now', new_row_path(@selected_date.year, @selected_date.month, @selected_date.day) %>
+                      <% else %>
+                        <%= link_to "Copy your last week tasks and projects", duplicate_row_path(@selected_date.year, @selected_date.month, @selected_date.day), method: :patch %>
+                      <% end -%>
+                    </td>
+                  </tr>
+                  <% end -%>
+                  <% if @disabled_rows.size > 0 %>
+                    <% @disabled_rows.each do |row| %>
+                      <tr class="text-center disabled">
+                        <td class="project-task">
+                          <span class="btn btn-default btn-sm">
+                            <strong><%= row.project.client.name %>:</strong>
+                            <%= row.project.name %> - <%= row.task.name %>
+                          </span>
+                        </td>
+                        <% (0..6).each do |n| %>
+                          <%
+                          value = TimeEntry.get_time_entry(current_person, @selected_date.beginning_of_week + n, row.project, row.task)
+                          max = (value == current_person.max_time_entry(@selected_date.beginning_of_week + n) and value > 0)
+                          if use_nice_time?
+                            if value > 0
+                              value = nice_time(value)
+                            else
+                              value = ''
+                            end
+                          else
+                            value = '' if value == 0
+                          end %>
+                          <td class="col-lg-1<%= " max" if max %>">
+                            <%= value %>
+                          </td>
+                        <% end -%>
+                        <%
+                          value = TimeEntry.week_task_time(current_person, @selected_date.beginning_of_week, row.project, row.task)
+                          week_max = (value == current_person.max_week_time_entry(@selected_date.beginning_of_week) and value > 0)
+                        %>
+                        <td class="total<%= " max" if week_max %>">
+                          <strong><%= nice_time(value) %></strong>
+                        </td>
+                        <td class="delete">
+                          <% if row.time_entries(current_person).size == 0 -%>
+                            <%= link_to fa_icon('times'), row_path(row), method: :delete, class: 'delete' %>
+                          <% end -%>
+                        </td>
+                      </tr>
+                    <% end -%>
+                  <% end -%>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <td class="text-center">
+                      <% if @rows.size > 0 %>
+                        <%= f.submit class: "btn btn-success", value: "Save" %>
+                      <% end -%>
+                      <% if current_person.tasks.size > @rows.size %>
+                        <%= link_to 'Add Project/Task Entry', new_row_path(@selected_date.year, @selected_date.month, @selected_date.day), class: "btn btn-primary" %>
+                      <% end -%>
+                    </td>
+                    <% (0..6).each do |n| %>
+                      <% if !current_person.current_time_entry.nil? and current_person.current_time_entry.spent_on == @selected_date.beginning_of_week + n %>
+                      <td class="timer">
+                      <% else %>
+                      <td>
+                      <% end -%>
+                        <strong><%= nice_time(TimeEntry.day_time(current_person, @selected_date.beginning_of_week + n)) %></strong>
+                      </td>
+                    <% end -%>
+                    <td class="total">
+                      <strong><%= nice_time(TimeEntry.week_total_time(current_person, @selected_date.beginning_of_week)) %></strong>
+                    </td>
+                    <td class="delete">&nbsp;</td>
+                  </tr>
+                </tfoot>
+              </table>
+            <% end -%>
+          </div>
+        <% else %>
+          <div class="no-records">Please, ask for a project to your boss... ;)</div>
+        <% end -%>
+      </div> <!-- /widget-content -->
+    </div> <!-- /widget -->
+  </div> <!-- /.col-md-12 -->
+</div> <!-- /.row -->

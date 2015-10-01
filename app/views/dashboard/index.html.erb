@@ -1,0 +1,376 @@
+<% javascript 'jquery-dynamic-selectable.js' %>
+<% javascript 'Chart.min.js' %>
+<% javascript 'Chart.Colours.js' %>
+<% javascript 'dashboard.js' %>
+<% stylesheet 'reports.css' %>
+
+<% if current_person.time_entered > 0 %>
+<script type="text/javascript">
+$(function () {
+  <% %w( all week month year ).each do |interval| %>
+    projects['#<%= interval %>'] = [
+      <%= current_person.percent_projects(interval).each_with_index.map { |p,i|
+      raw "{
+        value: #{p[1]},
+        color: Colour(colors[#{i%10}],30),
+        highlight: colors[#{i%10}],
+        label: \'#{p[0]}\'
+      }"}.join(',').html_safe -%>
+    ];
+    clients['#<%= interval %>'] = [
+      <%= current_person.percent_clients(interval).each_with_index.map { |p,i|
+      raw "{
+        value: #{p[1]},
+        color: Colour(colors[#{i%10}],30),
+        highlight: colors[#{i%10}],
+        label: \'#{p[0]}\'
+      }"}.join(',').html_safe -%>
+    ];
+    tasks['#<%= interval %>'] = [
+      <%= current_person.percent_tasks(interval).each_with_index.map { |p,i|
+      raw "{
+        value: #{p[1]},
+        color: Colour(colors[#{i%10}],30),
+        highlight: colors[#{i%10}],
+        label: \'#{p[0]}\'
+      }"}.join(',').html_safe -%>
+    ];
+  <% end -%>
+  doughnutProjects = new Chart(ctxProjects).Doughnut(projects['#week'],options);
+  doughnutClients =  new Chart(ctxClients).Doughnut(clients['#week'],options);
+  doughnutTasks =    new Chart(ctxTasks).Doughnut(tasks['#week'],options);
+});
+</script>
+<% end -%>
+
+<% if @current_time_entry %>
+  <% javascript 'timers.js' %>
+  <%
+  if use_nice_time?
+    timer = (DateTime.now.to_f - @current_time_entry.begun_on.to_f).round
+  else
+    timer = ((DateTime.now.to_f - @current_time_entry.begun_on.to_f)/3600).round(2)
+  end
+  timer = 0 if timer < 0 or !@current_time_entry.timer_running
+  same_day = @current_time_entry.spent_on == Date.today
+  %>
+  <script type="text/javascript">
+    timer = <%= timer %>;
+    running = <%= @current_time_entry.timer_running %>;
+    nice = <%= use_nice_time? %>;
+    same_day = <%= same_day %>;
+    date = "<%= @current_time_entry.spent_on.strftime('%a %d/%m') %>";
+  </script>
+<% end -%>
+<% if current_person.projects.size > 0 %>
+  <div class="row">
+    <div class="col-md-6">
+      <div class="widget stacked">
+        <div class="widget-header">
+            <h3>Quick actions</h3>
+        </div>
+        <div class="widget-content">
+          <% if current_person.projects.size > 0 %>
+            <%= simple_form_for @time_entry, html: { class: "form-inline text-center"} do |f| %>
+              <%= hidden_field_tag(:from, 'dashboard') %>
+              <%= hidden_field_tag('time_entry[hours]', nil) %>
+              <div class="form-group">
+                <%= f.association :project, collection: @clients, label: false, input_html: { class: "form-control input-sm", data: {
+                      dynamic_selectable_url: dynamic_select_tasks_path(':project_id'),
+                      dynamic_selectable_target: '#time_entry_task_id'
+                    }}, include_blank: false, as: :grouped_select, group_method: :person_projects
+                %>
+              </div>
+              <div class="form-group">
+                <%= f.association :task, collection: @time_entry.project.tasks, label: false, input_html: { class: "form-control input-sm"}, include_blank: false
+                %>
+              </div>
+              <%= button_tag(type: 'submit', class: "btn btn-success btn-sm", id: "dynamic_selectable_button") do %>
+                <%= fa_icon("play") %> New timer
+              <% end %>
+            <% end -%>
+          <% end -%>
+          <div class="clearfix"></div>
+          <br />
+          <div class="btn-group btn-group-justified">
+            <% if person_admin? %>
+              <%= link_to 'Add Project', new_project_path, class: "btn btn-default btn-sm" %>
+              <%= link_to 'Add Task', new_task_path, class: "btn btn-default btn-sm" %>
+              <%= link_to 'Add Client', new_client_path, class: "btn btn-default btn-sm" %>
+              <%= link_to 'Add Person', new_person_path, class: "btn btn-default btn-sm" %>
+            <% end -%>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="widget stacked">
+        <div class="widget-header">
+          <% if @current_time_entry.nil? %>
+          <h3>Your last timer</h3>
+          <% else -%>
+          <h3>Your last timer tracked on <%= link_to @current_time_entry.spent_on.strftime('%a%n%d/%m'), time_day_path(@current_time_entry.spent_on.year, @current_time_entry.spent_on.month, @current_time_entry.spent_on.day), id: 'current_day' %></h3>
+          <% end -%>
+        </div> <!-- /.widget-header -->
+        <div class="widget-content">
+          <div class="table-responsive">
+
+            <% if @current_time_entry.nil? %>
+              <p>You don't have any timer. <%= link_to 'Start your first timer now', new_time_entry_path %></p>
+            <% else -%>
+              <table id="time-entries" class="dashboard table table-hover">
+                <tr class="<% if @current_time_entry.timer_running %>success<% end%>" id="timer_<%= @current_time_entry.id %>">
+                  <td class="col-md-1 timer">
+                    <% if @current_time_entry.project.enabled? %>
+                      <% if @current_time_entry.timer_running %>
+                        <%= link_to fa_icon("circle-o-notch spin") + " Stop", stop_timer_path(@current_time_entry), class: "btn btn-sm btn-danger", method: :patch, remote: true, tabindex: 0 %>
+                      <% else -%>
+                        <%= link_to fa_icon("play") + " Start", start_timer_path(@current_time_entry), class: "btn btn-sm btn-success", method: :patch, remote: true, tabindex: 0 %>
+                      <% end -%>
+                    <% else %>
+                      <p class="btn btn-sm btn-default disabled">Archived</p>
+                    <% end -%>
+                  </td>
+                  <td class="col-md-6">
+                    <strong><%= @current_time_entry.project.name %></strong>
+                    (<%= @current_time_entry.project.client.name %>)
+                    <br />
+                    <%= @current_time_entry.task.name %>
+                    <%= link_to "Edit", edit_time_entry_path(@current_time_entry), class: "btn btn-default btn-xs" if @current_time_entry.project.enabled? %>
+                  </td>
+                  <td class="col-md-4 notes">
+                    <%= truncate(@current_time_entry.notes, length: 40) %>
+                  </td>
+                  <td class="col-md-1 text-right time">
+                    <%= nice_time(@current_time_entry.hours) %>
+                  </td>
+                </tr>
+              </table>
+              <% end -%>
+          </div>
+        </div> <!-- /widget-content -->
+      </div> <!-- /.widget -->
+    </div> <!-- /.col-md-12 -->
+  </div> <!-- /.row -->
+<% end %>
+
+<% if current_person.time_entered > 0 %>
+<div class="row">
+  <div class="col-md-4">
+    <div class="widget stacked">
+      <div class="widget-header">
+        <h3>Projects</h3>
+      </div> <!-- /widget-header -->
+      <div class="widget-content">
+        <ul class="nav nav-pills nav-projects btn-xs">
+          <li class="active"><a href="#week" data-toggle="tab">Last week</a></li>
+          <li class=""><a href="#month" data-toggle="tab">Last month</a></li>
+          <li class=""><a href="#year" data-toggle="tab">Last year</a></li>
+          <li class=""><a href="#all" data-toggle="tab">All time</a></li>
+        </ul>
+        <br />
+        <canvas id="chartProjects"></canvas>
+      </div> <!-- /widget-content -->
+    </div> <!-- /widget -->     
+  </div> <!-- /span3 -->
+  <div class="col-md-4">
+    <div class="widget stacked">
+      <div class="widget-header">
+        <h3>Tasks</h3>
+      </div> <!-- /widget-header -->
+      <div class="widget-content">
+        <ul class="nav nav-pills nav-tasks btn-xs">
+          <li class="active"><a href="#week" data-toggle="tab">Last week</a></li>
+          <li class=""><a href="#month" data-toggle="tab">Last month</a></li>
+          <li class=""><a href="#year" data-toggle="tab">Last year</a></li>
+          <li class=""><a href="#all" data-toggle="tab">All time</a></li>
+        </ul>
+        <br />
+        <canvas id="chartTasks"></canvas>
+      </div> <!-- /widget-content -->
+    </div> <!-- /widget -->     
+  </div> <!-- /span3 -->
+  <div class="col-md-4">
+    <div class="widget stacked">
+      <div class="widget-header">
+        <h3>Clients</h3>
+      </div> <!-- /widget-header -->
+      <div class="widget-content">
+        <ul class="nav nav-pills nav-clients btn-xs">
+          <li class="active"><a href="#week" data-toggle="tab">Last week</a></li>
+          <li class=""><a href="#month" data-toggle="tab">Last month</a></li>
+          <li class=""><a href="#year" data-toggle="tab">Last year</a></li>
+          <li class=""><a href="#all" data-toggle="tab">All time</a></li>
+        </ul>
+        <br />
+        <canvas id="chartClients"></canvas>
+      </div> <!-- /widget-content -->
+    </div> <!-- /widget -->     
+  </div> <!-- /span3 -->
+</div> <!-- /row -->
+<% end -%>
+
+
+
+  <div class="row" id="big_stats">
+    <div class="col-md-3">
+      <div class="widget stacked">
+        <div class="widget-header">
+          <h3>Daily</h3>
+        </div> <!-- /.widget-header -->
+        <div class="widget-content">
+          <div class="stat">                
+            <h4>Today</h4>
+            <p><span class="value"><%= nice_time(@hours_today) %></span></p>
+            <p>
+              <% if @diff_hours_today != 0 %>
+                <% if @diff_hours_today < 0 %>
+                  <span class="diff text-danger"><%= fa_icon('caret-down') %>
+                <% else -%>
+                  <span class="diff text-success"><%= fa_icon('caret-up') %>
+                <% end -%>
+                <%= nice_time(@diff_hours_today) %></span>
+              <% end -%>
+            </p>
+          </div> <!-- .stat -->
+          <div class="stat">                
+            <h4>Yesterday</h4>
+            <span class="value"><%= nice_time(@hours_yesterday) %></span>
+          </div> <!-- .stat -->
+        </div> <!-- /widget-content -->
+      </div> <!-- /.widget -->
+    </div> <!-- /.col-md-3 -->
+    <div class="col-md-3">
+      <div class="widget stacked">
+        <div class="widget-header">
+          <h3>Weekly</h3>
+        </div> <!-- /.widget-header -->
+        <div class="widget-content">
+          <div class="stat">
+            <h4>This Week</h4>
+            <p><span class="value"><%= nice_time(@hours_this_week) %></span></p>
+            <p>
+              <% if @diff_hours_this_week != 0 %>
+                <% if @diff_hours_this_week < 0 %>
+                  <span class="diff text-danger"><%= fa_icon('caret-down') %>
+                <% else -%>
+                  <span class="diff text-success"><%= fa_icon('caret-up') %>
+                <% end -%>
+                <%= nice_time(@diff_hours_this_week) %></span>
+              <% end -%>
+            </p>
+          </div> <!-- .stat -->
+          <div class="stat">
+            <h4>Last Week</h4>
+            <span class="value"><%= nice_time(@hours_last_week) %></span>
+          </div> <!-- .stat -->
+        </div> <!-- /widget-content -->
+      </div> <!-- /.widget -->
+    </div> <!-- /.col-md-3 -->
+    <div class="col-md-3">
+      <div class="widget stacked">
+        <div class="widget-header">
+          <h3>Monthly</h3>
+        </div> <!-- /.widget-header -->
+        <div class="widget-content">
+          <div class="stat">
+            <h4>This Month</h4>
+            <p><span class="value"><%= nice_time(@hours_this_month) %></span></p>
+            <p>
+              <% if @diff_hours_this_month != 0 %>
+                <% if @diff_hours_this_month < 0 %>
+                  <span class="diff text-danger"><%= fa_icon('caret-down') %>
+                <% else -%>
+                  <span class="diff text-success"><%= fa_icon('caret-up') %>
+                <% end -%>
+                <%= nice_time(@diff_hours_this_month) %></span>
+              <% end -%>
+            </p>
+          </div> <!-- .stat -->
+          <div class="stat">
+            <h4>Last Month</h4>
+            <span class="value"><%= nice_time(@hours_last_month) %></span>
+          </div> <!-- .stat -->
+        </div> <!-- /widget-content -->
+      </div> <!-- /.widget -->
+    </div> <!-- /.col-md-3 -->
+    <div class="col-md-3">
+      <div class="widget stacked">
+        <div class="widget-header">
+          <h3>Quarterly</h3>
+        </div> <!-- /.widget-header -->
+        <div class="widget-content">
+          <div class="stat">
+            <h4>This Quarter</h4>
+            <p><span class="value"><%= nice_time(@hours_this_quarter) %></span></p>
+            <p>
+              <% if @diff_hours_this_quarter != 0 %>
+                <% if @diff_hours_this_quarter < 0 %>
+                  <span class="diff text-danger"><%= fa_icon('caret-down') %>
+                <% else -%>
+                  <span class="diff text-success"><%= fa_icon('caret-up') %>
+                <% end -%>
+                <%= nice_time(@diff_hours_this_quarter) %></span>
+              <% end -%>
+            </p>
+          </div> <!-- .stat -->
+          <div class="stat">
+            <h4>Last Quarter</h4>
+            <span class="value"><%= nice_time(@hours_last_quarter) %></span>
+          </div> <!-- .stat -->
+        </div> <!-- /widget-content -->
+      </div> <!-- /.widget -->
+    </div> <!-- /.col-md-3 -->
+  </div> <!-- /.row -->
+
+  <% if current_person.projects.enabled.size > 0 %>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="widget stacked">
+          <div class="widget-header">
+            <h3>Active Projects</h3>
+          </div> <!-- /.widget-header -->
+          <div class="widget-content">
+            <% if @projects.size > 0 -%>
+              <% @projects.each do |project| %>
+                <p><strong><%= project.client.name %></strong> - <%= project.name %></p>
+                <div class="progress">
+                  <% if project.person_time_entered(current_person) > 0 %>
+                    <div class="progress-bar progress-bar-success" style="width: <%= project.proportional_person_time_entered(current_person, @max_time_project) %>%; min-width: 30px;"><%= nice_time(project.person_time_entered(current_person)) %></span>
+                    </div>
+                  <% end -%>
+                  <% if project.time_entered > 0 %>
+                    <% if project.proportional_time_entered(@max_time_project) - project.proportional_person_time_entered(current_person, @max_time_project) > 0 %>
+                      <div class="progress-bar progress-bar-primary" style="width: <%= project.proportional_time_entered(@max_time_project) - project.proportional_person_time_entered(current_person, @max_time_project) %>%; min-width: 30px;"><%= nice_time(project.time_entered) %></span>
+                      </div>
+                    <% end -%>
+                  <% end -%>
+                </div>
+              <% end -%>
+            <% else -%>
+              No time entries
+            <% end -%>
+          </div> <!-- /widget-content -->
+        </div> <!-- /.widget -->
+      </div> <!-- /.col-md-12 -->
+    </div> <!-- /.row -->
+  <% else -%>
+    <div class="row">
+      <div class="col-md-12">
+        <div class="widget stacked">
+          <div class="widget-header">
+            <h3>No Projects</h3>
+          </div> <!-- /.widget-header -->
+          <div class="widget-content">
+            <div class="no-records">
+              <% if person_admin? %>
+                Please, add a new project to start tracking time... ;)
+              <% else %>
+                Please, ask for a project to your boss... ;)
+              <% end -%>
+            </div>
+          </div> <!-- /widget-content -->
+        </div> <!-- /.widget -->
+      </div> <!-- /.col-md-12 -->
+    </div> <!-- /.row -->
+  <% end -%>

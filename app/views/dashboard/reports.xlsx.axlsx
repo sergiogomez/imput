@@ -1,0 +1,7 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Time Entries") do |sheet|
+  sheet.add_row ["Date", "Client", "Project", "Task", "Person", "Hours"] ## Header values of Excel
+  @time_entries.each do |time_entry|
+    sheet.add_row [time_entry.spent_on, time_entry.project.client.name, time_entry.project.name, time_entry.task.name, time_entry.person.fullname, time_entry.hours]
+  end
+end

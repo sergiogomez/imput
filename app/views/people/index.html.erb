@@ -1,0 +1,40 @@
+<div class="widget stacked ">
+  <div class="widget-header">
+    <h3>Listing people</h3>
+  </div> <!-- /.widget-header -->
+  <div class="widget-content">
+    <p>
+      <%= link_to 'New Person', new_person_path, class: "btn btn-primary" %>
+      <%= link_to 'Export to Excel', people_path(format: "xlsx"), class: "btn btn-default" %>
+      <%= link_to 'Export to CSV', people_path(format: "csv"), class: "btn btn-default" %>
+      <%= link_to 'Import from CSV', import_people_path, class: "btn btn-default" %>
+    </p>
+    <div class="panel panel-default">
+      <div class="panel-body">
+        <div class="list-group">
+          <% @people.each do |person| %>
+            <div class="list-group-item<%= " disabled" if !person.enabled? %>">
+              <div class="pull-right">
+                <%= link_to 'Edit', edit_person_path(person), class: "btn btn-default btn-xs" %>
+                <% if person != current_person %>
+                  <% if person.enabled %>
+                    <%= link_to 'Disable', disable_person_path(person), class: "btn btn-default btn-xs", method: :patch %>
+                  <% else %>
+                    <%= link_to 'Enable', enable_person_path(person), class: "btn btn-default btn-xs", method: :patch %>
+                  <% end -%>
+                <% end %>
+                <% if person.projects.size == 0 and person.time_entered == 0 and person != current_person %>
+                  <%= link_to 'Delete', person, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger btn-xs" %>
+                <% else %>
+                  <%= link_to 'Delete', '#', class: "btn btn-danger btn-xs disabled" %>
+                <% end -%>
+              </div>
+              <h5 class="list-group-item-heading"><%= link_to person.fullname, edit_person_path(person) %><% if person.admin? %> <small>Admin</small><% end %></h5>
+              <p class="list-group-item-text"><%= pluralize(person.projects.size, 'project') %>, tracked time: <%= nice_time(person.time_entered) %></p>
+            </div>
+          <% end -%>
+        </div>
+      </div>
+    </div>
+  </div> <!-- /widget-content -->
+</div> <!-- /widget -->

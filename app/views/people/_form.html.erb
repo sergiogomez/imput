@@ -1,0 +1,80 @@
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget stacked">
+      <div class="widget-header">
+        <h3>Person</h3>
+      </div> <!-- /widget-header -->
+      <div class="widget-content">
+        <%= simple_form_for @person, html: { class: "form-horizontal col-md-7"} do |f| %>
+          <%= f.error_notification %>
+          <fieldset>
+            <div class="form-group">
+              <%= f.label :firstname, class: "col-lg-4" %>
+              <%= f.input :firstname, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+            </div>
+            <div class="form-group">
+              <%= f.label :lastname, class: "col-lg-4" %>
+              <%= f.input :lastname, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+            </div>
+            <div class="form-group">
+              <%= f.label :email, class: "col-lg-4" %>
+              <%= f.input :email, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+            </div>
+            <% if !@person.unconfirmed_email.nil? %>
+              <div class="form-group">
+                <%= f.label :unconfirmed_email, class: "col-lg-4" %>
+                <%= f.input :unconfirmed_email, readonly: true, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+              </div>
+            <% end -%>
+            <div class="form-group">
+              <%= f.label :password, class: "col-lg-4" %>
+              <%= f.input :password, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+            </div>
+            <div class="form-group">
+              <%= f.label :password_confirmation, class: "col-lg-4" %>
+              <%= f.input :password_confirmation, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+            </div>
+            <div class="form-group">
+              <%= f.label :max_hours, "Max hours for timers", class: "control-label col-lg-4" %>
+              <%= f.input :max_hours, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+              <p class="help-block col-lg-offset-4 col-lg-8">You will receive a notification if a timer exceeds this time</p>
+            </div>
+            <div class="form-group">
+              <%= f.label "Time format", class: "col-lg-4" %>
+              <div class="col-lg-8">
+                <div class="radio">
+                  <%= f.input_field :time_decimal, as: :radio_buttons, collection: [['Decimal (e.g. 3.75)', true], ['HH:MM (e.g. 03:45)', false]], boolean_style: :nested %>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <div class="col-lg-4">&nbsp;</div>
+              <div class="col-lg-8">
+                <%= f.input_field :receive_daily_report %>
+                <%= f.label :receive_daily_report  %>
+              </div>
+            </div>
+            <% if person_admin? and current_person.company.people.size > 1 %>
+              <div class="form-group">
+                <div class="col-lg-4">&nbsp;</div>
+                <div class="col-lg-8">
+                  <%= f.input_field :admin %>
+                  <%= f.label :admin, "Company Administrator"  %>
+                </div>
+              </div>
+              <div class="form-group">
+                <%= f.label :notes, class: "col-lg-4" %>
+                <%= f.input :notes, label: false, wrapper_html: { class:"col-lg-8" }, input_html: { class: "form-control"} %>
+              </div>
+            <% end -%>
+          </fieldset>
+
+          <div class="form-actions text-center">
+            <%= f.button :submit, class: "btn btn-success" %>
+            <%= link_to "Cancel", people_path, class: "btn btn-default" %>
+          </div>
+        <% end %>
+      </div> <!-- /widget-content -->
+    </div> <!-- /widget -->         
+  </div> <!-- /.col-md-12 -->
+</div> <!-- /.row -->

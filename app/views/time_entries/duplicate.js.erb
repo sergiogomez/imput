@@ -1,0 +1,17 @@
+$(function () {
+  timer = 0;
+  same_day = true;
+  $('table.dashboard td.time').html("<%= use_nice_time? ? '00:00:00' : '0.00' %>");
+  $('#current_day').html("<%= Date.today.strftime('%a %d/%m') %>");
+  $('#current_day').attr("href","<%= time_day_path(@new_time_entry.spent_on.year, @new_time_entry.spent_on.month, @new_time_entry.spent_on.day) %>");
+
+  $("#timer_<%= @time_entry.id %>").attr('id','timer_<%= @new_time_entry.id %>');
+
+  $("#timer_<%= @new_time_entry.id %> .timer a").removeClass("btn-success").addClass("btn-danger");
+  $("#timer_<%= @new_time_entry.id %> .timer a").html('<i class="fa fa-circle-o-notch fa-spin"></i> Stop');
+  $("#timer_<%= @new_time_entry.id %> .timer a").attr("href", $("#timer_<%= @new_time_entry.id %> .timer a").attr("href").replace("start", "stop").replace("<%= @time_entry.id %>","<%= @new_time_entry.id %>"));
+  $("#timer_<%= @new_time_entry.id %>").addClass("success");
+
+  globalTimer = setInterval(updateValues, interval, increment);
+  running = true;
+});

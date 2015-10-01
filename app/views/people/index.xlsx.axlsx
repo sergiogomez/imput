@@ -1,0 +1,7 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "People") do |sheet|
+  sheet.add_row ["First Name", "Last Name", "Email"] ## Header values of Excel
+  @people.each do |person|
+    sheet.add_row [person.firstname, person.lastname, person.email]
+  end
+end

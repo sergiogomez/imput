@@ -1,0 +1,29 @@
+<% stylesheet 'signin.css' %>
+
+<div class="account-container register stacked">
+  <div class="content clearfix">
+    <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <%= f.error_notification %>
+      <h1>Forgot password?</h1>
+      <div class="login-fields">
+        <p>Write your email:</p>
+        <div class="form-inputs">
+          <div class="field">
+            <%= f.input :email, required: true, autofocus: true, placeholder: "Email", input_html: { class: "form-control" } %>
+          </div> <!-- /field -->
+        </div>
+      </div> <!-- /login-fields -->
+
+      <div class="login-actions">
+        <div class="form-actions">
+          <%= f.button :submit, "Send me reset password instructions", class: "login-action btn btn-primary" %>
+        </div>
+      </div> <!-- .actions -->
+    <% end %>
+  </div>
+</div>
+
+<!-- Text Under Box -->
+<div class="login-extra">
+  <%= render "devise/shared/links" %>
+</div> <!-- /login-extra -->

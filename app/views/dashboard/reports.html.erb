@@ -1,0 +1,271 @@
+<% javascript 'ChartNew.js' %>
+<% javascript 'Chart.Colours.js' %>
+<% javascript 'reports.js' %>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget stacked">
+      <div class="widget-header">
+        <h3>Filters</h3>
+      </div> <!-- /.widget-header -->
+      <div class="widget-content filter">
+        <p class="text-center btn btn-success hidden">Change filters</p>
+        <%= form_tag run_reports_path, class: "form-horizontal col-md-7" do %>
+          <fieldset>
+            <div class="form-group">
+              <%= label_tag :time_frame, "Time frame", class: "control-label col-lg-4" %>
+              <div class="col-md-8">
+                <%= select_tag(:time_frame, options_for_select(@time_frames.map{|u| [u[:label], u[:value]] }, selected: @time_frame), class: "form-control") %>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= label_tag :clients, "Clients", class: "control-label col-lg-4" %>
+              <div class="col-md-8">
+                <%= select_tag :clients, options_from_collection_for_select(@clients, :id, :name, selected: @clients_ids), class: "form-control", multiple: true %>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= label_tag :projects, "Projects", class: "control-label col-lg-4" %>
+              <div class="col-md-8">
+                <%= select_tag :projects, options_from_collection_for_select(@projects, :id, :name, selected: @projects_ids), class: "form-control", multiple: true %>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= label_tag :tasks, "Tasks", class: "control-label col-lg-4" %>
+              <div class="col-md-8">
+                <%= select_tag :tasks, options_from_collection_for_select(@tasks, :id, :name, selected: @tasks_ids), class: "form-control", multiple: true %>
+              </div>
+            </div>
+            <div class="form-group">
+              <%= label_tag :people, "People", class: "control-label col-lg-4" %>
+              <div class="col-md-8">
+                <%= select_tag :people, options_from_collection_for_select(@people, :id, :fullname, selected: @people_ids), class: "form-control", multiple: true %>
+              </div>
+            </div>
+          </fieldset>
+          <div class="form-actions text-center">
+            <%= submit_tag "Run Report", class: "btn btn-success" %>
+          </div>
+        <% end %>
+      </div> <!-- /widget-content -->
+    </div> <!-- /.widget -->
+  </div> <!-- /.col-md-12 -->
+</div> <!-- /.row -->
+
+<% if @time_entries %>
+<script type="text/javascript">
+has_time_entries = true;
+</script>
+<% if @time_entries.size > 0 %>
+  <%
+    colors = ['#7cb5ec', '#434348', '#90ed7d', '#f7a35c', '#8085e9', '#f15c80', '#e4d354', '#8085e8', '#8d4653', '#91e8e1']
+  %>
+  <script>
+  $(function () {
+    data = {};
+    data['projects'] = {
+      labels : ["Projects"],
+      datasets : [
+        <%= @r_projects.each_with_index.map { |project,i|
+        raw "{
+          data: [#{project.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person)}],
+          fillColor: colors[#{i%10}],
+          title: '#{project.name}'
+        }"}.join(',').html_safe -%>
+      ]
+    };
+    data['tasks'] = {
+      labels : ["Tasks"],
+      datasets : [
+        <%= @r_tasks.each_with_index.map { |task,i|
+        raw "{
+          data: [#{task.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person)}],
+          fillColor: colors[#{i%10}],
+          title: '#{task.name}'
+        }"}.join(',').html_safe -%>
+      ]
+    };
+    data['clients'] = {
+      labels : ["Clients"],
+      datasets : [
+        <%= @r_clients.each_with_index.map { |client,i|
+        raw "{
+          data: [#{client.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person)}],
+          fillColor: colors[#{i%10}],
+          title: '#{client.name}'
+        }"}.join(',').html_safe -%>
+      ]
+    };
+    data['people'] = {
+      labels : ["People"],
+      datasets : [
+        <%= @r_people.each_with_index.map { |person,i|
+        raw "{
+          data: [#{person.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person)}],
+          fillColor: colors[#{i%10}],
+          title: '#{person.name}'
+        }"}.join(',').html_safe -%>
+      ]
+    };
+    ctx = document.getElementById("canvas").getContext("2d");
+    window.horizontalBar = new Chart(ctx).HorizontalStackedBar(data['projects'], options);
+  });
+  </script>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="widget stacked">
+        <div class="widget-header">
+          <h3>Results</h3>
+        </div> <!-- /.widget-header -->
+        <div class="widget-content">
+          <div role="tabpanel">
+
+            <!-- Nav tabs -->
+            <ul class="nav nav-tabs" role="tablist">
+              <li role="presentation" class="active"><a href="#tab-projects" aria-controls="projects" role="tab" data-toggle="tab">Projects</a></li>
+              <li role="presentation"><a href="#tab-tasks" aria-controls="tasks" role="tab" data-toggle="tab">Tasks</a></li>
+              <li role="presentation"><a href="#tab-clients" aria-controls="clients" role="tab" data-toggle="tab">Clients</a></li>
+              <li role="presentation"><a href="#tab-people" aria-controls="people" role="tab" data-toggle="tab">People</a></li>
+            </ul>
+            <div id="canvasDiv">
+              <canvas id="canvas" height="25"></canvas>
+            </div>
+            <!-- Tab panes -->
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane fade in active table-responsive" id="tab-projects">
+                  <table class="table table-bordered table-hover table-striped">
+                  <thead>
+                    <tr>
+                      <th>Project</th>
+                      <th>Client</th>
+                      <th>Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @r_projects.each_with_index do |project, i| %>
+                      <tr>
+                        <td><span class="item_color" style="background: <%= colors[i%10] %>;"></span> <%= project.name %></td>
+                        <td><%= project.client.name %></td>
+                        <td><%= nice_time project.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person) %></td>
+                      </tr>
+                    <% end -%>
+                  </tbody>
+                </table>
+              </div>
+              <div role="tabpanel" class="tab-pane fade table-responsive" id="tab-tasks">
+                <table class="table table-bordered table-hover table-striped">
+                  <thead>
+                    <tr>
+                      <th>Task</th>
+                      <th>Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @r_tasks.each_with_index do |task, i| %>
+                      <tr>
+                        <td><span class="item_color" style="background: <%= colors[i%10] %>;"></span> <%= task.name %></td>
+                        <td><%= nice_time task.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person) %></td>
+                      </tr>
+                    <% end -%>
+                  </tbody>
+                </table>
+              </div>
+              <div role="tabpanel" class="tab-pane fade table-responsive" id="tab-clients">
+                <table class="table table-bordered table-hover table-striped">
+                  <thead>
+                    <tr>
+                      <th>Client</th>
+                      <th>Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @r_clients.each_with_index do |client, i| %>
+                      <tr>
+                        <td><span class="item_color" style="background: <%= colors[i%10] %>;"></span> <%= client.name %></td>
+                        <td><%= nice_time client.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person) %></td>
+                      </tr>
+                    <% end -%>
+                  </tbody>
+                </table>
+              </div>
+              <div role="tabpanel" class="tab-pane fade table-responsive" id="tab-people">
+                <table class="table table-bordered table-hover table-striped">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Hours</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% @r_people.each_with_index do |person, i| %>
+                      <tr>
+                        <td><span class="item_color" style="background: <%= colors[i%10] %>;"></span> <%= person.name %></td>
+                        <td><%= nice_time person.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person) %></td>
+                      </tr>
+                    <% end -%>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div> <!-- /widget-content -->
+      </div> <!-- /.widget -->
+    </div> <!-- /.col-md-12 -->
+  </div> <!-- /.row -->
+<% end -%>
+
+<div class="row">
+  <div class="col-md-12">
+    <div class="widget stacked">
+      <div class="widget-header">
+        <h3>Time Entries</h3>
+      </div> <!-- /.widget-header -->
+      <div class="widget-content">
+        <% if @time_entries.size > 0 %>
+          <p>
+            <%= link_to 'Export to Excel', reports_path(format: "xlsx"), class: "btn btn-default" %>
+            <%= link_to 'Export to CSV', reports_path(format: "csv"), class: "btn btn-default" %>
+          </p>
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover table-striped">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Client</th>
+                  <th>Project</th>
+                  <th>Task</th>
+                  <th>Person</th>
+                  <th>Hours</th>
+                </tr>
+              </thead>
+              <% @time_entries.each do |time_entry| %>
+                <tr>
+                  <td><%= time_entry.spent_on %></td>
+                  <td><%= time_entry.project.client.name %></td>
+                  <td><%= time_entry.project.name %></td>
+                  <td><%= time_entry.task.name %></td>
+                  <td><%= time_entry.person.fullname %></td>
+                  <td class="text-right"><%= nice_time(time_entry.hours) %></td>
+                </tr>
+              <% end -%>
+              <tfoot>
+                <tr>
+                  <td colspan="5" class="text-right">Total</td>
+                  <td class="text-right"><%= nice_time(@time_entries.sum(:hours)) %></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        <% else %>
+          <div class="no-records">There are no time entries with the selected parameters.</div>
+        <% end -%>
+      </div> <!-- /widget-content -->
+    </div> <!-- /.widget -->
+  </div> <!-- /.col-md-12 -->
+</div> <!-- /.row -->
+<% else %>
+<script type="text/javascript">
+has_time_entries = false;
+</script>
+<% end -%>

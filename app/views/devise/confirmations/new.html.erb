@@ -1,0 +1,28 @@
+<% stylesheet 'signin.css' %>
+
+<div class="account-container register stacked">
+  <div class="content clearfix">
+    <%= simple_form_for(resource, as: resource_name, url: confirmation_path(resource_name), html: { method: :post }) do |f| %>
+      <%= f.error_notification %>
+      <%= f.full_error :confirmation_token %>
+      <h1>Resend confirmation instructions</h1>
+      <div class="login-fields">
+        <p>Write your email:</p>
+        <div class="field">
+          <%= f.input :email, required: true, autofocus: true, placeholder: "Email", input_html: { class: "form-control input-lg" } %>
+        </div> <!-- /field -->
+      </div>
+
+      <div class="login-actions">
+        <div class="form-actions">
+          <%= f.button :submit, "Resend confirmation instructions", class: "login-action btn btn-primary" %>
+        </div>
+      </div> <!-- .actions -->
+    <% end -%>
+  </div>
+</div>
+
+<!-- Text Under Box -->
+<div class="login-extra">
+  <%= render "devise/shared/links" %>
+</div> <!-- /login-extra -->

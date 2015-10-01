@@ -1,0 +1,8 @@
+<% flash.each do |name, msg| %>
+  <% if msg.is_a?(String) %>
+    <div data-alert class="alert alert-<%= name == "notice" ? "success" : "danger" %> alert-dismissable">
+      <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+      <%= content_tag :strong, msg.html_safe %>
+    </div>
+  <% end %>
+<% end %>

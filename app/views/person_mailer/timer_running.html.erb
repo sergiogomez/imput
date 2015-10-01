@@ -1,0 +1,29 @@
+<% content_for :title do %>
+  Hello, <%= @person.firstname %>!
+<% end -%>
+
+<% content_for :content do %>
+<tr>
+  <td valign="top" class="bodyContent">
+    <div mc:edit="std_content01">
+      <% value = @person.time_decimal ? "#{@time_running} hours" : decimal_time_to_hours(@time_running) %>
+      You have a timer running for <%= value %>. Do you want to check it?<br/><br/>
+      <table width="100%">
+        <tr>
+          <td align="center" valign="top" style="padding-top:0;">
+            <table border="0" cellpadding="15" cellspacing="0" class="templateButton">
+              <tr>
+                <td valign="middle" class="templateButtonContent">
+                  <div mc:edit="std_content02">
+                    <%= link_to 'Your timer', time_day_url(@time_entry.spent_on.year, @time_entry.spent_on.month, @time_entry.spent_on.day) %>
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  </td>
+</tr>
+<% end -%>

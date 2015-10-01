@@ -1,0 +1,25 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="error-container">
+        <h1>Oops!</h1>
+        <h2><%= title %></h2>
+        <div class="error-details">
+          <%= error_details %>
+        </div> <!-- /error-details -->
+        <div class="error-actions">
+          <% if person_signed_in? %>
+            <%= link_to fa_icon("chevron-left") + " Back to Dashboard", dashboard_path, class: "btn btn-primary btn-lg" %>
+          <% else %>
+            <%= link_to fa_icon("chevron-left") + " Go to sign in", new_person_session_path, class: "btn btn-primary btn-lg" %>
+          <% end -%>
+          <a href="mailto:support@imput.io" class="btn btn-default btn-lg" id="user_voice_contact">
+            <%= fa_icon("envelope") %> 
+            &nbsp;
+            Contact Support           
+          </a>
+        </div> <!-- /error-actions -->
+      </div> <!-- /error-container -->      
+    </div> <!-- /span12 -->
+  </div> <!-- /row -->
+</div> <!-- /container -->

@@ -1,0 +1,7 @@
+wb = xlsx_package.workbook
+wb.add_worksheet(name: "Tasks") do |sheet|
+  sheet.add_row ["Task Name", "Common", "Notes"] ## Header values of Excel
+  @tasks.each do |task|
+    sheet.add_row [task.name, task.common, task.notes]
+  end
+end
