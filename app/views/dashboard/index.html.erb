@@ -43,23 +43,23 @@ $(function () {
 </script>
 <% end -%>
 
-<% if @current_time_entry %>
+<% if @person_time_calculator.current_time_entry %>
   <% javascript 'timers.js' %>
   <%
   if use_nice_time?
-    timer = (DateTime.now.to_f - @current_time_entry.begun_on.to_f).round
+    timer = (DateTime.now.to_f - @person_time_calculator.current_time_entry.begun_on.to_f).round
   else
-    timer = ((DateTime.now.to_f - @current_time_entry.begun_on.to_f)/3600).round(2)
+    timer = ((DateTime.now.to_f - @person_time_calculator.current_time_entry.begun_on.to_f)/3600).round(2)
   end
-  timer = 0 if timer < 0 or !@current_time_entry.timer_running
-  same_day = @current_time_entry.spent_on == Date.today
+  timer = 0 if timer < 0 or !@person_time_calculator.current_time_entry.timer_running
+  same_day = @person_time_calculator.current_time_entry.spent_on == Date.today
   %>
   <script type="text/javascript">
     timer = <%= timer %>;
-    running = <%= @current_time_entry.timer_running %>;
+    running = <%= @person_time_calculator.current_time_entry.timer_running %>;
     nice = <%= use_nice_time? %>;
     same_day = <%= same_day %>;
-    date = "<%= @current_time_entry.spent_on.strftime('%a %d/%m') %>";
+    date = "<%= @person_time_calculator.current_time_entry.spent_on.strftime('%a %d/%m') %>";
   </script>
 <% end -%>
 <% if current_person.projects.size > 0 %>
@@ -106,43 +106,43 @@ $(function () {
     <div class="col-md-6">
       <div class="widget stacked">
         <div class="widget-header">
-          <% if @current_time_entry.nil? %>
+          <% if @person_time_calculator.current_time_entry.nil? %>
           <h3>Your last timer</h3>
           <% else -%>
-          <h3>Your last timer tracked on <%= link_to @current_time_entry.spent_on.strftime('%a%n%d/%m'), time_day_path(@current_time_entry.spent_on.year, @current_time_entry.spent_on.month, @current_time_entry.spent_on.day), id: 'current_day' %></h3>
+          <h3>Your last timer tracked on <%= link_to @person_time_calculator.current_time_entry.spent_on.strftime('%a%n%d/%m'), time_day_path(@person_time_calculator.current_time_entry.spent_on.year, @person_time_calculator.current_time_entry.spent_on.month, @person_time_calculator.current_time_entry.spent_on.day), id: 'current_day' %></h3>
           <% end -%>
         </div> <!-- /.widget-header -->
         <div class="widget-content">
           <div class="table-responsive">
 
-            <% if @current_time_entry.nil? %>
+            <% if @person_time_calculator.current_time_entry.nil? %>
               <p>You don't have any timer. <%= link_to 'Start your first timer now', new_time_entry_path %></p>
             <% else -%>
               <table id="time-entries" class="dashboard table table-hover">
-                <tr class="<% if @current_time_entry.timer_running %>success<% end%>" id="timer_<%= @current_time_entry.id %>">
+                <tr class="<% if @person_time_calculator.current_time_entry.timer_running %>success<% end%>" id="timer_<%= @person_time_calculator.current_time_entry.id %>">
                   <td class="col-md-1 timer">
-                    <% if @current_time_entry.project.enabled? %>
-                      <% if @current_time_entry.timer_running %>
-                        <%= link_to fa_icon("circle-o-notch spin") + " Stop", stop_timer_path(@current_time_entry), class: "btn btn-sm btn-danger", method: :patch, remote: true, tabindex: 0 %>
+                    <% if @person_time_calculator.current_time_entry.project.enabled? %>
+                      <% if @person_time_calculator.current_time_entry.timer_running %>
+                        <%= link_to fa_icon("circle-o-notch spin") + " Stop", stop_timer_path(@person_time_calculator.current_time_entry), class: "btn btn-sm btn-danger", method: :patch, remote: true, tabindex: 0 %>
                       <% else -%>
-                        <%= link_to fa_icon("play") + " Start", start_timer_path(@current_time_entry), class: "btn btn-sm btn-success", method: :patch, remote: true, tabindex: 0 %>
+                        <%= link_to fa_icon("play") + " Start", start_timer_path(@person_time_calculator.current_time_entry), class: "btn btn-sm btn-success", method: :patch, remote: true, tabindex: 0 %>
                       <% end -%>
                     <% else %>
                       <p class="btn btn-sm btn-default disabled">Archived</p>
                     <% end -%>
                   </td>
                   <td class="col-md-6">
-                    <strong><%= @current_time_entry.project.name %></strong>
-                    (<%= @current_time_entry.project.client.name %>)
+                    <strong><%= @person_time_calculator.current_time_entry.project.name %></strong>
+                    (<%= @person_time_calculator.current_time_entry.project.client.name %>)
                     <br />
-                    <%= @current_time_entry.task.name %>
-                    <%= link_to "Edit", edit_time_entry_path(@current_time_entry), class: "btn btn-default btn-xs" if @current_time_entry.project.enabled? %>
+                    <%= @person_time_calculator.current_time_entry.task.name %>
+                    <%= link_to "Edit", edit_time_entry_path(@person_time_calculator.current_time_entry), class: "btn btn-default btn-xs" if @person_time_calculator.current_time_entry.project.enabled? %>
                   </td>
                   <td class="col-md-4 notes">
-                    <%= truncate(@current_time_entry.notes, length: 40) %>
+                    <%= truncate(@person_time_calculator.current_time_entry.notes, length: 40) %>
                   </td>
                   <td class="col-md-1 text-right time">
-                    <%= nice_time(@current_time_entry.hours) %>
+                    <%= nice_time(@person_time_calculator.current_time_entry.hours) %>
                   </td>
                 </tr>
               </table>
@@ -221,21 +221,21 @@ $(function () {
         <div class="widget-content">
           <div class="stat">                
             <h4>Today</h4>
-            <p><span class="value"><%= nice_time(@hours_today) %></span></p>
+            <p><span class="value"><%= nice_time(@person_time_calculator.hours_today) %></span></p>
             <p>
-              <% if @diff_hours_today != 0 %>
-                <% if @diff_hours_today < 0 %>
+              <% if @person_time_calculator.diff_hours_today != 0 %>
+                <% if @person_time_calculator.diff_hours_today < 0 %>
                   <span class="diff text-danger"><%= fa_icon('caret-down') %>
                 <% else -%>
                   <span class="diff text-success"><%= fa_icon('caret-up') %>
                 <% end -%>
-                <%= nice_time(@diff_hours_today) %></span>
+                <%= nice_time(@person_time_calculator.diff_hours_today) %></span>
               <% end -%>
             </p>
           </div> <!-- .stat -->
           <div class="stat">                
             <h4>Yesterday</h4>
-            <span class="value"><%= nice_time(@hours_yesterday) %></span>
+            <span class="value"><%= nice_time(@person_time_calculator.hours_yesterday) %></span>
           </div> <!-- .stat -->
         </div> <!-- /widget-content -->
       </div> <!-- /.widget -->
@@ -248,21 +248,21 @@ $(function () {
         <div class="widget-content">
           <div class="stat">
             <h4>This Week</h4>
-            <p><span class="value"><%= nice_time(@hours_this_week) %></span></p>
+            <p><span class="value"><%= nice_time(@person_time_calculator.hours_this_week) %></span></p>
             <p>
-              <% if @diff_hours_this_week != 0 %>
-                <% if @diff_hours_this_week < 0 %>
+              <% if @person_time_calculator.diff_hours_this_week != 0 %>
+                <% if @person_time_calculator.diff_hours_this_week < 0 %>
                   <span class="diff text-danger"><%= fa_icon('caret-down') %>
                 <% else -%>
                   <span class="diff text-success"><%= fa_icon('caret-up') %>
                 <% end -%>
-                <%= nice_time(@diff_hours_this_week) %></span>
+                <%= nice_time(@person_time_calculator.diff_hours_this_week) %></span>
               <% end -%>
             </p>
           </div> <!-- .stat -->
           <div class="stat">
             <h4>Last Week</h4>
-            <span class="value"><%= nice_time(@hours_last_week) %></span>
+            <span class="value"><%= nice_time(@person_time_calculator.hours_last_week) %></span>
           </div> <!-- .stat -->
         </div> <!-- /widget-content -->
       </div> <!-- /.widget -->
@@ -275,21 +275,21 @@ $(function () {
         <div class="widget-content">
           <div class="stat">
             <h4>This Month</h4>
-            <p><span class="value"><%= nice_time(@hours_this_month) %></span></p>
+            <p><span class="value"><%= nice_time(@person_time_calculator.hours_this_month) %></span></p>
             <p>
-              <% if @diff_hours_this_month != 0 %>
-                <% if @diff_hours_this_month < 0 %>
+              <% if @person_time_calculator.diff_hours_this_month != 0 %>
+                <% if @person_time_calculator.diff_hours_this_month < 0 %>
                   <span class="diff text-danger"><%= fa_icon('caret-down') %>
                 <% else -%>
                   <span class="diff text-success"><%= fa_icon('caret-up') %>
                 <% end -%>
-                <%= nice_time(@diff_hours_this_month) %></span>
+                <%= nice_time(@person_time_calculator.diff_hours_this_month) %></span>
               <% end -%>
             </p>
           </div> <!-- .stat -->
           <div class="stat">
             <h4>Last Month</h4>
-            <span class="value"><%= nice_time(@hours_last_month) %></span>
+            <span class="value"><%= nice_time(@person_time_calculator.hours_last_month) %></span>
           </div> <!-- .stat -->
         </div> <!-- /widget-content -->
       </div> <!-- /.widget -->
@@ -302,21 +302,21 @@ $(function () {
         <div class="widget-content">
           <div class="stat">
             <h4>This Quarter</h4>
-            <p><span class="value"><%= nice_time(@hours_this_quarter) %></span></p>
+            <p><span class="value"><%= nice_time(@person_time_calculator.hours_this_quarter) %></span></p>
             <p>
-              <% if @diff_hours_this_quarter != 0 %>
-                <% if @diff_hours_this_quarter < 0 %>
+              <% if @person_time_calculator.diff_hours_this_quarter != 0 %>
+                <% if @person_time_calculator.diff_hours_this_quarter < 0 %>
                   <span class="diff text-danger"><%= fa_icon('caret-down') %>
                 <% else -%>
                   <span class="diff text-success"><%= fa_icon('caret-up') %>
                 <% end -%>
-                <%= nice_time(@diff_hours_this_quarter) %></span>
+                <%= nice_time(@person_time_calculator.diff_hours_this_quarter) %></span>
               <% end -%>
             </p>
           </div> <!-- .stat -->
           <div class="stat">
             <h4>Last Quarter</h4>
-            <span class="value"><%= nice_time(@hours_last_quarter) %></span>
+            <span class="value"><%= nice_time(@person_time_calculator.hours_last_quarter) %></span>
           </div> <!-- .stat -->
         </div> <!-- /widget-content -->
       </div> <!-- /.widget -->

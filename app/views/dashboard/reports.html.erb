@@ -21,25 +21,25 @@
             <div class="form-group">
               <%= label_tag :clients, "Clients", class: "control-label col-lg-4" %>
               <div class="col-md-8">
-                <%= select_tag :clients, options_from_collection_for_select(@clients, :id, :name, selected: @clients_ids), class: "form-control", multiple: true %>
+                <%= select_tag :clients, options_from_collection_for_select(@clients, :id, :name, selected: @ids_data.clients), class: "form-control", multiple: true %>
               </div>
             </div>
             <div class="form-group">
               <%= label_tag :projects, "Projects", class: "control-label col-lg-4" %>
               <div class="col-md-8">
-                <%= select_tag :projects, options_from_collection_for_select(@projects, :id, :name, selected: @projects_ids), class: "form-control", multiple: true %>
+                <%= select_tag :projects, options_from_collection_for_select(@projects, :id, :name, selected: @ids_data.projects), class: "form-control", multiple: true %>
               </div>
             </div>
             <div class="form-group">
               <%= label_tag :tasks, "Tasks", class: "control-label col-lg-4" %>
               <div class="col-md-8">
-                <%= select_tag :tasks, options_from_collection_for_select(@tasks, :id, :name, selected: @tasks_ids), class: "form-control", multiple: true %>
+                <%= select_tag :tasks, options_from_collection_for_select(@company.tasks, :id, :name, selected: @ids_data.tasks), class: "form-control", multiple: true %>
               </div>
             </div>
             <div class="form-group">
               <%= label_tag :people, "People", class: "control-label col-lg-4" %>
               <div class="col-md-8">
-                <%= select_tag :people, options_from_collection_for_select(@people, :id, :fullname, selected: @people_ids), class: "form-control", multiple: true %>
+                <%= select_tag :people, options_from_collection_for_select(@company.people, :id, :fullname, selected: @ids_data.people), class: "form-control", multiple: true %>
               </div>
             </div>
           </fieldset>
@@ -66,7 +66,7 @@ has_time_entries = true;
     data['projects'] = {
       labels : ["Projects"],
       datasets : [
-        <%= @r_projects.each_with_index.map { |project,i|
+        <%= @r_data.projects.each_with_index.map { |project,i|
         raw "{
           data: [#{project.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person)}],
           fillColor: colors[#{i%10}],
@@ -77,7 +77,7 @@ has_time_entries = true;
     data['tasks'] = {
       labels : ["Tasks"],
       datasets : [
-        <%= @r_tasks.each_with_index.map { |task,i|
+        <%= @r_data.tasks.each_with_index.map { |task,i|
         raw "{
           data: [#{task.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person)}],
           fillColor: colors[#{i%10}],
@@ -88,7 +88,7 @@ has_time_entries = true;
     data['clients'] = {
       labels : ["Clients"],
       datasets : [
-        <%= @r_clients.each_with_index.map { |client,i|
+        <%= @r_data.clients.each_with_index.map { |client,i|
         raw "{
           data: [#{client.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person)}],
           fillColor: colors[#{i%10}],
@@ -99,7 +99,7 @@ has_time_entries = true;
     data['people'] = {
       labels : ["People"],
       datasets : [
-        <%= @r_people.each_with_index.map { |person,i|
+        <%= @r_data.people.each_with_index.map { |person,i|
         raw "{
           data: [#{person.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person)}],
           fillColor: colors[#{i%10}],
@@ -143,7 +143,7 @@ has_time_entries = true;
                     </tr>
                   </thead>
                   <tbody>
-                    <% @r_projects.each_with_index do |project, i| %>
+                    <% @r_data.projects.each_with_index do |project, i| %>
                       <tr>
                         <td><span class="item_color" style="background: <%= colors[i%10] %>;"></span> <%= project.name %></td>
                         <td><%= project.client.name %></td>
@@ -162,7 +162,7 @@ has_time_entries = true;
                     </tr>
                   </thead>
                   <tbody>
-                    <% @r_tasks.each_with_index do |task, i| %>
+                    <% @r_data.tasks.each_with_index do |task, i| %>
                       <tr>
                         <td><span class="item_color" style="background: <%= colors[i%10] %>;"></span> <%= task.name %></td>
                         <td><%= nice_time task.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person) %></td>
@@ -180,7 +180,7 @@ has_time_entries = true;
                     </tr>
                   </thead>
                   <tbody>
-                    <% @r_clients.each_with_index do |client, i| %>
+                    <% @r_data.clients.each_with_index do |client, i| %>
                       <tr>
                         <td><span class="item_color" style="background: <%= colors[i%10] %>;"></span> <%= client.name %></td>
                         <td><%= nice_time client.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person) %></td>
@@ -198,7 +198,7 @@ has_time_entries = true;
                     </tr>
                   </thead>
                   <tbody>
-                    <% @r_people.each_with_index do |person, i| %>
+                    <% @r_data.people.each_with_index do |person, i| %>
                       <tr>
                         <td><span class="item_color" style="background: <%= colors[i%10] %>;"></span> <%= person.name %></td>
                         <td><%= nice_time person.report_time_entered(params[:time_frame_from], params[:time_frame_to], params[:clients], params[:projects], params[:tasks], params[:people], current_person) %></td>
