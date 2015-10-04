@@ -1,117 +1,62 @@
 class DashboardController < ApplicationController
   include ClientFilling
-  before_action :authorize_person!, except: [:index]
+  before_action :authorize_person, except: [:index]
+  before_action :fill_clients
+  before_action :create_ids_data, only: [:reports]
+  before_action :create_r_data, only: [:reports]
+  before_action :sanitize_params, only: [:run_reports]
 
   def index
-    @hours_today = TimeEntry.day_time(current_person, Date.today)
-    @hours_yesterday = TimeEntry.day_time(current_person, Date.today - 1)
-    @diff_hours_today = (@hours_today - @hours_yesterday).round(2)
-
-    @hours_this_week = TimeEntry.week_total_time(current_person, Date.today.beginning_of_week)
-    @hours_last_week = TimeEntry.week_total_time(current_person, (Date.today - 7).beginning_of_week)
-    @diff_hours_this_week = (@hours_this_week - @hours_last_week).round(2)
-
-    @hours_this_month = TimeEntry.month_total_time(current_person, Date.today)
-    @hours_last_month = TimeEntry.month_total_time(current_person, Date.today - 1.month)
-    @diff_hours_this_month = (@hours_this_month - @hours_last_month).round(2)
-
-    @hours_this_quarter = TimeEntry.quarter_total_time(current_person, Date.today)
-    @hours_last_quarter = TimeEntry.quarter_total_time(current_person, Date.today - 3.month)
-    @diff_hours_this_quarter = (@hours_this_quarter - @hours_last_quarter).round(2)
-
-    @projects = current_person.projects.enabled.person_bigger(current_person)
+    @person_time_calculator = PersonTimeDiffCalculator.new(current_person, Date.today)
+    @person_time_calculator.process
+    enabled_projects = current_person.projects.enabled
+    @projects = enabled_projects.person_bigger(current_person)
     @max_time_project = current_person.company.projects.enabled.bigger.first.time_entered if @projects.size > 0
 
-    @current_time_entry = current_person.current_time_entry || current_person.dashboard_last_time_entry
-
-    # Copied from time_entries_controller.rb
-
-    fill_clients
-
-    if current_person.projects.enabled.size > 0
-
+    if enabled_projects.size > 0
       clients_person_projects
-
-      @time_entry = TimeEntry.new
-      @time_entry.person_id = current_person.id
-      @time_entry.spent_on = @selected_date
-      if current_person.last_time_entry.nil?
-        @time_entry.project = current_person.projects.enabled.first
-        @time_entry.task = current_person.projects.enabled.first.tasks.first
-      else
-        @time_entry.project = current_person.last_time_entry.project
-        @time_entry.task = current_person.last_time_entry.task
-      end
-
+      person_time_entry(enabled_projects)
     end
   end
 
   def run_reports
-    time_frame_from = params[:time_frame].split(',')[0]
-    time_frame_to = params[:time_frame].split(',')[1]
-    clients = params[:clients].nil? ? "any" : params[:clients].sort.join('-')
-    projects = params[:projects].nil? ? "any" : params[:projects].sort.join('-')
-    tasks = params[:tasks].nil? ? "any" : params[:tasks].sort.join('-')
-    people = params[:people].nil? ? "any" : params[:people].sort.join('-')
-    redirect_to reports_path(time_frame_from, time_frame_to, clients, projects, tasks, people)
+    redirect_to reports_path(@sanitized_params.time_frame_from,
+                             @sanitized_params.time_frame_to,
+                             @sanitized_params.clients,
+                             @sanitized_params.projects,
+                             @sanitized_params.tasks,
+                             @sanitized_params.people)
   end
 
   def reports
-    @time_frames = []
-    @time_frames << { label: "This week", value: "#{Date.today.beginning_of_week.strftime("%Y%m%d")},#{(Date.today.end_of_week).strftime("%Y%m%d")}" }
-    @time_frames << { label: "Last week", value: "#{(Date.today - 1.week).beginning_of_week.strftime("%Y%m%d")},#{((Date.today - 1.week).end_of_week).strftime("%Y%m%d")}" }
-    @time_frames << { label: "This month", value: "#{Date.today.beginning_of_month.strftime("%Y%m%d")},#{(Date.today.end_of_month).strftime("%Y%m%d")}" }
-    @time_frames << { label: "Last month", value: "#{(Date.today - 1.month).beginning_of_month.strftime("%Y%m%d")},#{((Date.today - 1.month).end_of_month).strftime("%Y%m%d")}" }
-    @time_frames << { label: "This quarter", value: "#{Date.today.beginning_of_quarter.strftime("%Y%m%d")},#{(Date.today.end_of_quarter).strftime("%Y%m%d")}" }
-    @time_frames << { label: "Last quarter", value: "#{(Date.today - 3.month).beginning_of_quarter.strftime("%Y%m%d")},#{((Date.today - 3.month).end_of_quarter).strftime("%Y%m%d")}" }
-    @time_frames << { label: "This year", value: "#{Date.today.beginning_of_year.strftime("%Y%m%d")},#{(Date.today.end_of_year).strftime("%Y%m%d")}" }
-    @time_frames << { label: "Last year", value: "#{(Date.today - 1.year).beginning_of_year.strftime("%Y%m%d")},#{((Date.today - 1.year).end_of_year).strftime("%Y%m%d")}" }
+    populate_time_frames
+    @company = current_person.company
+    @clients = current_person.clients_for_reports
+    @projects = current_person.projects_for_reports
+    time_frame_from = params[:time_frame_from]
+    time_frame_to = params[:time_frame_to]
 
-    if current_person.admin?
-      @clients = current_person.company.clients
-      @projects = current_person.company.projects
-    elsif current_person.managed_projects.size > 0
-      @clients = current_person.managed_clients
-      @projects = current_person.managed_projects
+    if time_frame_from
+      populate_ids_data("clients", @clients.ids.sort)
+      populate_ids_data("projects", @projects.ids.sort)
+      populate_ids_data("tasks", @company.tasks.ids.sort)
+      populate_ids_data("people", @company.people.ids.sort)
+
+      @time_entries = TimeEntry.joins(project: :client).where(spent_on: Date.parse(time_frame_from)..Date.parse(time_frame_to),
+                                                              clients: {id: @ids_data.clients},
+                                                              project: @ids_data.projects,
+                                                              task: @ids_data.tasks,
+                                                              person: @ids_data.people).where.not(hours: 0).order(spent_on: :asc)
+
+      r_projects = Project.joins(:time_entries).distinct.where(time_entries: {id: @time_entries.ids})
+      populate_r_data(r_projects,
+                      Task.joins(:time_entries).distinct.where(time_entries: {id: @time_entries.ids}),
+                      Client.joins(:projects).distinct.where(projects: {id: r_projects.ids}),
+                      Person.joins(:projects).distinct.where(projects: {id: r_projects.ids}))
+
+      @time_frame = "#{time_frame_from},#{time_frame_to}"
     end
-    @tasks = current_person.company.tasks
-    @people = current_person.company.people
-
-    if params[:time_frame_from]
-      if params[:clients] == "any"
-        @clients_ids = @clients.ids.sort
-      else
-        @clients_ids = params[:clients].split('-').map(&:to_i) & @clients.ids.sort
-      end
-      if params[:projects] == "any"
-        @projects_ids = @projects.ids.sort
-      else
-        @projects_ids = params[:projects].split('-').map(&:to_i) & @projects.ids.sort
-      end
-      if params[:tasks] == "any"
-        @tasks_ids = @tasks.ids.sort
-      else
-        @tasks_ids = params[:tasks].split('-').map(&:to_i) & @tasks.ids.sort
-      end
-      if params[:people] == "any"
-        @people_ids = @people.ids.sort
-      else
-        @people_ids = params[:people].split('-').map(&:to_i) & @people.ids.sort
-      end
-      @time_entries = TimeEntry.joins(project: :client).where(spent_on: Date.parse(params[:time_frame_from])..Date.parse(params[:time_frame_to]), clients: { id: @clients_ids }, project: @projects_ids, task: @tasks_ids, person: @people_ids).where.not(hours: 0).order(spent_on: :asc)
-
-      @r_projects = Project.joins(:time_entries).distinct.where(time_entries: { id: @time_entries.ids })
-      @r_tasks = Task.joins(:time_entries).distinct.where(time_entries: { id: @time_entries.ids })
-      @r_clients = Client.joins(:projects).distinct.where(projects: { id: @r_projects.ids })
-      @r_people = Person.joins(:projects).distinct.where(projects: { id: @r_projects.ids })
-
-      @time_frame = params[:time_frame_from] + "," + params[:time_frame_to]
-      @clients_ids = nil if params[:clients] == "any"
-      @projects_ids = nil if params[:projects] == "any"
-      @tasks_ids = nil if params[:tasks] == "any"
-      @people_ids = nil if params[:people] == "any"
-    end
-    filename = "imputio_time_report_from_#{params[:time_frame_from]}_to_#{params[:time_frame_to]}"
+    filename = "imputio_time_report_from_#{time_frame_from}_to_#{time_frame_to}"
     respond_to do |format|
       format.html
       format.xlsx {
@@ -125,8 +70,88 @@ class DashboardController < ApplicationController
 
   private
 
-    def authorize_person!
-      redirect_to root_path unless person_admin? or current_person.managed_projects.size > 0
-    end
+  def authorize_person
+    redirect_to root_path unless person_admin? or current_person.managed_projects.size > 0
+  end
 
+  def person_time_entry(enabled_projects)
+    @time_entry = TimeEntry.new
+    @time_entry.person_id = current_person.id
+    @time_entry.spent_on = @selected_date
+    last_time_entry =  current_person.last_time_entry
+    if last_time_entry.nil?
+      @time_entry.project = enabled_projects.first
+      @time_entry.task = enabled_projects.first.tasks.first
+    else
+      @time_entry.project = last_time_entry.project
+      @time_entry.task = last_time_entry.task
+    end
+  end
+
+  def populate_time_frames
+    @time_frames = []
+    date_today = Date.today
+    @time_frames << {label: 'This week', value: value_in_populate_time_frames(date_today, 'week')}
+    @time_frames << {label: 'Last week', value: value_in_populate_time_frames(date_today, 'week', 1)}
+
+    @time_frames << {label: 'This month', value: value_in_populate_time_frames(date_today, 'month')}
+    @time_frames << {label: 'Last month', value: value_in_populate_time_frames(date_today, 'month', 1)}
+
+    @time_frames << {label: 'This quarter', value: value_in_populate_time_frames(date_today, 'quarter')}
+    @time_frames << {label: 'Last quarter', value: value_in_populate_time_frames(date_today, 'quarter', 3)}
+
+    @time_frames << {label: 'This year', value: value_in_populate_time_frames(date_today, 'year')}
+    @time_frames << {label: 'Last year', value: value_in_populate_time_frames(date_today, 'year', 1)}
+  end
+
+  def value_in_populate_time_frames(date_today, interval, amount = 0)
+    case interval
+      when 'week'
+        (date_today - amount.week).beginning_of_week.strftime("%Y%m%d") + "," + ((date_today - amount.week).end_of_week).strftime("%Y%m%d")
+      when 'month'
+        (date_today - amount.month).beginning_of_month.strftime("%Y%m%d") + "," + ((date_today - amount.month).end_of_month).strftime("%Y%m%d")
+      when 'quarter'
+        (date_today - amount.month).beginning_of_quarter.strftime("%Y%m%d") + "," + ((date_today - amount.month).end_of_quarter).strftime("%Y%m%d")
+      when 'year'
+        (date_today - amount.year).beginning_of_year.strftime("%Y%m%d") + "," + ((date_today - amount.year).end_of_year).strftime("%Y%m%d")
+    end
+  end
+
+  def populate_ids_data(what, sorted_ids)
+    if params[what.to_sym] == 'any'
+      @ids_data.send("#{what}=", sorted_ids)
+    else
+      @ids_data.send("#{what}=", params[what.to_sym].split('-').map(&:to_i) & sorted_ids)
+    end
+  end
+
+  def populate_r_data(projects, tasks, clients, people)
+    @r_data.projects = projects
+    @r_data.tasks = tasks
+    @r_data.clients = clients
+    @r_data.people = people
+  end
+
+  def create_ids_data
+    @ids_data = OpenStruct.new
+  end
+
+  def create_r_data
+    @r_data = OpenStruct.new
+  end
+
+  def sanitize_params
+    time_frame = params[:time_frame].split(',')
+    @sanitized_params = OpenStruct.new
+    @sanitized_params.time_frame_from = time_frame[0]
+    @sanitized_params.time_frame_to = time_frame[1]
+    @sanitized_params.clients = return_param(:clients)
+    @sanitized_params.projects = return_param(:projects)
+    @sanitized_params.tasks = return_param(:tasks)
+    @sanitized_params.people = return_param(:people)
+  end
+
+  def return_param(param)
+    params.key?(param) ? params[param].sort.join('-') : 'any'
+  end
 end

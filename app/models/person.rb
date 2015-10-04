@@ -211,6 +211,14 @@ class Person < ActiveRecord::Base
     Client.joins(:projects).where(company: self.company, projects: { id: self.managed_projects }).distinct
   end
 
+  def clients_for_reports
+     admin? ? company.clients : managed_clients
+  end
+
+  def projects_for_reports
+   admin? ? company.projects : managed_projects
+  end
+
   def max_time_entry(day)
     time_entries = TimeEntry.where(person: self, spent_on: day).select(:project_id, :task_id, "sum(hours) as total_hours").group(:project_id, :task_id).order("total_hours DESC")
     max_hours = time_entries.first.total_hours.round(2) unless time_entries.first.nil?
