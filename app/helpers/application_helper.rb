@@ -31,5 +31,11 @@ module ApplicationHelper
   def use_nice_time?
     !current_person.time_decimal
   end
-  
+
+  def lang_switcher
+    I18n.available_locales.each do |loc|
+      locale_param = request.path == root_path ? root_path(locale: loc) : params.merge(locale: loc)
+      concat content_tag(:li, (link_to loc.upcase, locale_param), class: (I18n.locale == loc ? "active" : ""))
+    end;
+  end
 end

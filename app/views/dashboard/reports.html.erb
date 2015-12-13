@@ -6,45 +6,45 @@
   <div class="col-md-12">
     <div class="widget stacked">
       <div class="widget-header">
-        <h3>Filters</h3>
+        <h3><%= t('.headers.filters') %></h3>
       </div> <!-- /.widget-header -->
       <div class="widget-content filter">
-        <p class="text-center btn btn-success hidden">Change filters</p>
+        <p class="text-center btn btn-success hidden"><%= t('.actions.change_filters') %></p>
         <%= form_tag run_reports_path, class: "form-horizontal col-md-7" do %>
           <fieldset>
             <div class="form-group">
-              <%= label_tag :time_frame, "Time frame", class: "control-label col-lg-4" %>
+              <%= label_tag :time_frame, t('.labels.time_frame'), class: "control-label col-lg-4" %>
               <div class="col-md-8">
-                <%= select_tag(:time_frame, options_for_select(@time_frames.map{|u| [u[:label], u[:value]] }, selected: @time_frame), class: "form-control") %>
+                <%= select_tag(:time_frame, options_for_select(@time_frames.map{|u| [t(".labels_for_select.#{u[:label]}"), u[:value]] }, selected: @time_frame), class: "form-control") %>
               </div>
             </div>
             <div class="form-group">
-              <%= label_tag :clients, "Clients", class: "control-label col-lg-4" %>
+              <%= label_tag :clients, t('.labels.clients'), class: "control-label col-lg-4" %>
               <div class="col-md-8">
                 <%= select_tag :clients, options_from_collection_for_select(@clients, :id, :name, selected: @ids_data.clients), class: "form-control", multiple: true %>
               </div>
             </div>
             <div class="form-group">
-              <%= label_tag :projects, "Projects", class: "control-label col-lg-4" %>
+              <%= label_tag :projects, t('.labels.projects'), class: "control-label col-lg-4" %>
               <div class="col-md-8">
                 <%= select_tag :projects, options_from_collection_for_select(@projects, :id, :name, selected: @ids_data.projects), class: "form-control", multiple: true %>
               </div>
             </div>
             <div class="form-group">
-              <%= label_tag :tasks, "Tasks", class: "control-label col-lg-4" %>
+              <%= label_tag :tasks, t('.labels.tasks'), class: "control-label col-lg-4" %>
               <div class="col-md-8">
                 <%= select_tag :tasks, options_from_collection_for_select(@company.tasks, :id, :name, selected: @ids_data.tasks), class: "form-control", multiple: true %>
               </div>
             </div>
             <div class="form-group">
-              <%= label_tag :people, "People", class: "control-label col-lg-4" %>
+              <%= label_tag :people, t('.labels.people'), class: "control-label col-lg-4" %>
               <div class="col-md-8">
                 <%= select_tag :people, options_from_collection_for_select(@company.people, :id, :fullname, selected: @ids_data.people), class: "form-control", multiple: true %>
               </div>
             </div>
           </fieldset>
           <div class="form-actions text-center">
-            <%= submit_tag "Run Report", class: "btn btn-success" %>
+            <%= submit_tag t('.actions.run_report'), class: "btn btn-success" %>
           </div>
         <% end %>
       </div> <!-- /widget-content -->
@@ -116,17 +116,17 @@ has_time_entries = true;
     <div class="col-md-12">
       <div class="widget stacked">
         <div class="widget-header">
-          <h3>Results</h3>
+          <h3><%= t('.headers.results') %></h3>
         </div> <!-- /.widget-header -->
         <div class="widget-content">
           <div role="tabpanel">
 
             <!-- Nav tabs -->
             <ul class="nav nav-tabs" role="tablist">
-              <li role="presentation" class="active"><a href="#tab-projects" aria-controls="projects" role="tab" data-toggle="tab">Projects</a></li>
-              <li role="presentation"><a href="#tab-tasks" aria-controls="tasks" role="tab" data-toggle="tab">Tasks</a></li>
-              <li role="presentation"><a href="#tab-clients" aria-controls="clients" role="tab" data-toggle="tab">Clients</a></li>
-              <li role="presentation"><a href="#tab-people" aria-controls="people" role="tab" data-toggle="tab">People</a></li>
+              <li role="presentation" class="active"><a href="#tab-projects" aria-controls="projects" role="tab" data-toggle="tab"><%= t('.labels.projects') %></a></li>
+              <li role="presentation"><a href="#tab-tasks" aria-controls="tasks" role="tab" data-toggle="tab"><%= t('.labels.tasks') %></a></li>
+              <li role="presentation"><a href="#tab-clients" aria-controls="clients" role="tab" data-toggle="tab"><%= t('.labels.clients') %></a></li>
+              <li role="presentation"><a href="#tab-people" aria-controls="people" role="tab" data-toggle="tab"><%= t('.labels.people') %></a></li>
             </ul>
             <div id="canvasDiv">
               <canvas id="canvas" height="25"></canvas>
@@ -137,9 +137,9 @@ has_time_entries = true;
                   <table class="table table-bordered table-hover table-striped">
                   <thead>
                     <tr>
-                      <th>Project</th>
-                      <th>Client</th>
-                      <th>Hours</th>
+                      <th><%= t('.headers.small.project') %></th>
+                      <th><%= t('.headers.small.client') %></th>
+                      <th><%= t('.headers.small.hours') %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -157,8 +157,8 @@ has_time_entries = true;
                 <table class="table table-bordered table-hover table-striped">
                   <thead>
                     <tr>
-                      <th>Task</th>
-                      <th>Hours</th>
+                      <th><%= t('.headers.small.task') %></th>
+                      <th><%= t('.headers.small.hours') %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -175,8 +175,8 @@ has_time_entries = true;
                 <table class="table table-bordered table-hover table-striped">
                   <thead>
                     <tr>
-                      <th>Client</th>
-                      <th>Hours</th>
+                      <th><%= t('.headers.small.client') %></th>
+                      <th><%= t('.headers.small.hours') %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -193,8 +193,8 @@ has_time_entries = true;
                 <table class="table table-bordered table-hover table-striped">
                   <thead>
                     <tr>
-                      <th>Name</th>
-                      <th>Hours</th>
+                      <th><%= t('.headers.small.name') %></th>
+                      <th><%= t('.headers.small.hours') %></th>
                     </tr>
                   </thead>
                   <tbody>
@@ -219,24 +219,24 @@ has_time_entries = true;
   <div class="col-md-12">
     <div class="widget stacked">
       <div class="widget-header">
-        <h3>Time Entries</h3>
+        <h3><%= t('.headers.time_entries')%></h3>
       </div> <!-- /.widget-header -->
       <div class="widget-content">
         <% if @time_entries.size > 0 %>
           <p>
-            <%= link_to 'Export to Excel', reports_path(format: "xlsx"), class: "btn btn-default" %>
-            <%= link_to 'Export to CSV', reports_path(format: "csv"), class: "btn btn-default" %>
+            <%= link_to t('.actions.export_to_excel'), reports_path(format: "xlsx"), class: "btn btn-default" %>
+            <%= link_to t('.actions.export_to_csv'), reports_path(format: "csv"), class: "btn btn-default" %>
           </p>
           <div class="table-responsive">
             <table class="table table-bordered table-hover table-striped">
               <thead>
                 <tr>
-                  <th>Date</th>
-                  <th>Client</th>
-                  <th>Project</th>
-                  <th>Task</th>
-                  <th>Person</th>
-                  <th>Hours</th>
+                  <th><%= t('.headers.small.date')%></th>
+                  <th><%= t('.headers.small.client')%></th>
+                  <th><%= t('.headers.small.project')%></th>
+                  <th><%= t('.headers.small.task')%></th>
+                  <th><%= t('.headers.small.person')%></th>
+                  <th><%= t('.headers.small.hours')%></th>
                 </tr>
               </thead>
               <% @time_entries.each do |time_entry| %>
@@ -251,14 +251,14 @@ has_time_entries = true;
               <% end -%>
               <tfoot>
                 <tr>
-                  <td colspan="5" class="text-right">Total</td>
+                  <td colspan="5" class="text-right"><%= t('.headers.small.total')%></td>
                   <td class="text-right"><%= nice_time(@time_entries.sum(:hours)) %></td>
                 </tr>
               </tfoot>
             </table>
           </div>
         <% else %>
-          <div class="no-records">There are no time entries with the selected parameters.</div>
+          <div class="no-records"><%= t('.messages.no_time_entries')%></div>
         <% end -%>
       </div> <!-- /widget-content -->
     </div> <!-- /.widget -->

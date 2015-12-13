@@ -67,7 +67,7 @@ $(function () {
     <div class="col-md-6">
       <div class="widget stacked">
         <div class="widget-header">
-            <h3>Quick actions</h3>
+            <h3><%= t('.headers.quick_actions') %></h3>
         </div>
         <div class="widget-content">
           <% if current_person.projects.size > 0 %>
@@ -86,7 +86,7 @@ $(function () {
                 %>
               </div>
               <%= button_tag(type: 'submit', class: "btn btn-success btn-sm", id: "dynamic_selectable_button") do %>
-                <%= fa_icon("play") %> New timer
+                <%= fa_icon("play") %> <%= t('.actions.new_timer') %>
               <% end %>
             <% end -%>
           <% end -%>
@@ -94,10 +94,10 @@ $(function () {
           <br />
           <div class="btn-group btn-group-justified">
             <% if person_admin? %>
-              <%= link_to 'Add Project', new_project_path, class: "btn btn-default btn-sm" %>
-              <%= link_to 'Add Task', new_task_path, class: "btn btn-default btn-sm" %>
-              <%= link_to 'Add Client', new_client_path, class: "btn btn-default btn-sm" %>
-              <%= link_to 'Add Person', new_person_path, class: "btn btn-default btn-sm" %>
+              <%= link_to t('.actions.add_project'), new_project_path, class: "btn btn-default btn-sm" %>
+              <%= link_to t('.actions.add_task'), new_task_path, class: "btn btn-default btn-sm" %>
+              <%= link_to t('.actions.add_client'), new_client_path, class: "btn btn-default btn-sm" %>
+              <%= link_to t('.actions.add_person'), new_person_path, class: "btn btn-default btn-sm" %>
             <% end -%>
           </div>
         </div>
@@ -107,16 +107,21 @@ $(function () {
       <div class="widget stacked">
         <div class="widget-header">
           <% if @person_time_calculator.current_time_entry.nil? %>
-          <h3>Your last timer</h3>
+          <h3><%= t('.headers.last_timer') %></h3>
           <% else -%>
-          <h3>Your last timer tracked on <%= link_to @person_time_calculator.current_time_entry.spent_on.strftime('%a%n%d/%m'), time_day_path(@person_time_calculator.current_time_entry.spent_on.year, @person_time_calculator.current_time_entry.spent_on.month, @person_time_calculator.current_time_entry.spent_on.day), id: 'current_day' %></h3>
+          <h3><%= raw t('.headers.last_timer_with_time',
+                    href: time_day_path(@person_time_calculator.current_time_entry.spent_on.year,
+                                        @person_time_calculator.current_time_entry.spent_on.month,
+                                        @person_time_calculator.current_time_entry.spent_on.day),
+                        anchor: @person_time_calculator.current_time_entry.spent_on.strftime('%a%n%d/%m')) %></h3>
           <% end -%>
         </div> <!-- /.widget-header -->
         <div class="widget-content">
           <div class="table-responsive">
 
             <% if @person_time_calculator.current_time_entry.nil? %>
-              <p>You don't have any timer. <%= link_to 'Start your first timer now', new_time_entry_path %></p>
+              <p><%= raw t('.paragraphs.no_timer_call_to_action',
+                           href: new_time_entry_path) %></p>
             <% else -%>
               <table id="time-entries" class="dashboard table table-hover">
                 <tr class="<% if @person_time_calculator.current_time_entry.timer_running %>success<% end%>" id="timer_<%= @person_time_calculator.current_time_entry.id %>">
@@ -125,10 +130,10 @@ $(function () {
                       <% if @person_time_calculator.current_time_entry.timer_running %>
                         <%= link_to fa_icon("circle-o-notch spin") + " Stop", stop_timer_path(@person_time_calculator.current_time_entry), class: "btn btn-sm btn-danger", method: :patch, remote: true, tabindex: 0 %>
                       <% else -%>
-                        <%= link_to fa_icon("play") + " Start", start_timer_path(@person_time_calculator.current_time_entry), class: "btn btn-sm btn-success", method: :patch, remote: true, tabindex: 0 %>
+                        <%= link_to fa_icon("play") + " " + t('.actions.start'), start_timer_path(@person_time_calculator.current_time_entry), class: "btn btn-sm btn-success", method: :patch, remote: true, tabindex: 0 %>
                       <% end -%>
                     <% else %>
-                      <p class="btn btn-sm btn-default disabled">Archived</p>
+                      <p class="btn btn-sm btn-default disabled"><%= raw t('.paragraphs.archived') %></p>
                     <% end -%>
                   </td>
                   <td class="col-md-6">
@@ -136,7 +141,7 @@ $(function () {
                     (<%= @person_time_calculator.current_time_entry.project.client.name %>)
                     <br />
                     <%= @person_time_calculator.current_time_entry.task.name %>
-                    <%= link_to "Edit", edit_time_entry_path(@person_time_calculator.current_time_entry), class: "btn btn-default btn-xs" if @person_time_calculator.current_time_entry.project.enabled? %>
+                    <%= link_to t('.actions.edit'), edit_time_entry_path(@person_time_calculator.current_time_entry), class: "btn btn-default btn-xs" if @person_time_calculator.current_time_entry.project.enabled? %>
                   </td>
                   <td class="col-md-4 notes">
                     <%= truncate(@person_time_calculator.current_time_entry.notes, length: 40) %>
@@ -159,14 +164,14 @@ $(function () {
   <div class="col-md-4">
     <div class="widget stacked">
       <div class="widget-header">
-        <h3>Projects</h3>
+        <h3><%= t('.headers.projects') %></h3>
       </div> <!-- /widget-header -->
       <div class="widget-content">
         <ul class="nav nav-pills nav-projects btn-xs">
-          <li class="active"><a href="#week" data-toggle="tab">Last week</a></li>
-          <li class=""><a href="#month" data-toggle="tab">Last month</a></li>
-          <li class=""><a href="#year" data-toggle="tab">Last year</a></li>
-          <li class=""><a href="#all" data-toggle="tab">All time</a></li>
+          <li class="active"><a href="#week" data-toggle="tab"><%= t('.actions.last_week') %></a></li>
+          <li class=""><a href="#month" data-toggle="tab"><%= t('.actions.last_month') %></a></li>
+          <li class=""><a href="#year" data-toggle="tab"><%= t('.actions.last_year') %></a></li>
+          <li class=""><a href="#all" data-toggle="tab"><%= t('.actions.all_time') %></a></li>
         </ul>
         <br />
         <canvas id="chartProjects"></canvas>
@@ -176,14 +181,14 @@ $(function () {
   <div class="col-md-4">
     <div class="widget stacked">
       <div class="widget-header">
-        <h3>Tasks</h3>
+        <h3><%= t('.headers.tasks') %></h3>
       </div> <!-- /widget-header -->
       <div class="widget-content">
         <ul class="nav nav-pills nav-tasks btn-xs">
-          <li class="active"><a href="#week" data-toggle="tab">Last week</a></li>
-          <li class=""><a href="#month" data-toggle="tab">Last month</a></li>
-          <li class=""><a href="#year" data-toggle="tab">Last year</a></li>
-          <li class=""><a href="#all" data-toggle="tab">All time</a></li>
+          <li class="active"><a href="#week" data-toggle="tab"><%= t('.actions.last_week') %></a></li>
+          <li class=""><a href="#month" data-toggle="tab"><%= t('.actions.last_month') %></a></li>
+          <li class=""><a href="#year" data-toggle="tab"><%= t('.actions.last_year') %></a></li>
+          <li class=""><a href="#all" data-toggle="tab"><%= t('.actions.all_time') %></a></li>
         </ul>
         <br />
         <canvas id="chartTasks"></canvas>
@@ -193,14 +198,14 @@ $(function () {
   <div class="col-md-4">
     <div class="widget stacked">
       <div class="widget-header">
-        <h3>Clients</h3>
+        <h3><%= t('.headers.clients') %></h3>
       </div> <!-- /widget-header -->
       <div class="widget-content">
         <ul class="nav nav-pills nav-clients btn-xs">
-          <li class="active"><a href="#week" data-toggle="tab">Last week</a></li>
-          <li class=""><a href="#month" data-toggle="tab">Last month</a></li>
-          <li class=""><a href="#year" data-toggle="tab">Last year</a></li>
-          <li class=""><a href="#all" data-toggle="tab">All time</a></li>
+          <li class="active"><a href="#week" data-toggle="tab"><%= t('.actions.last_week') %></a></li>
+          <li class=""><a href="#month" data-toggle="tab"><%= t('.actions.last_month') %></a></li>
+          <li class=""><a href="#year" data-toggle="tab"><%= t('.actions.last_year') %></a></li>
+          <li class=""><a href="#all" data-toggle="tab"><%= t('.actions.all_time') %></a></li>
         </ul>
         <br />
         <canvas id="chartClients"></canvas>
@@ -216,11 +221,11 @@ $(function () {
     <div class="col-md-3">
       <div class="widget stacked">
         <div class="widget-header">
-          <h3>Daily</h3>
+          <h3><%= t('.headers.daily') %></h3>
         </div> <!-- /.widget-header -->
         <div class="widget-content">
           <div class="stat">                
-            <h4>Today</h4>
+            <h4><%= t('.headers.small.today') %></h4>
             <p><span class="value"><%= nice_time(@person_time_calculator.hours_today) %></span></p>
             <p>
               <% if @person_time_calculator.diff_hours_today != 0 %>
@@ -234,7 +239,7 @@ $(function () {
             </p>
           </div> <!-- .stat -->
           <div class="stat">                
-            <h4>Yesterday</h4>
+            <h4><%= t('.headers.small.yesterday') %></h4>
             <span class="value"><%= nice_time(@person_time_calculator.hours_yesterday) %></span>
           </div> <!-- .stat -->
         </div> <!-- /widget-content -->
@@ -243,11 +248,11 @@ $(function () {
     <div class="col-md-3">
       <div class="widget stacked">
         <div class="widget-header">
-          <h3>Weekly</h3>
+          <h3><%= t('.headers.weekly') %></h3>
         </div> <!-- /.widget-header -->
         <div class="widget-content">
           <div class="stat">
-            <h4>This Week</h4>
+            <h4><%= t('.headers.small.this_week') %></h4>
             <p><span class="value"><%= nice_time(@person_time_calculator.hours_this_week) %></span></p>
             <p>
               <% if @person_time_calculator.diff_hours_this_week != 0 %>
@@ -261,7 +266,7 @@ $(function () {
             </p>
           </div> <!-- .stat -->
           <div class="stat">
-            <h4>Last Week</h4>
+            <h4><%= t('.headers.small.last_week') %></h4>
             <span class="value"><%= nice_time(@person_time_calculator.hours_last_week) %></span>
           </div> <!-- .stat -->
         </div> <!-- /widget-content -->
@@ -270,11 +275,11 @@ $(function () {
     <div class="col-md-3">
       <div class="widget stacked">
         <div class="widget-header">
-          <h3>Monthly</h3>
+          <h3><%= t('.headers.monthly') %></h3>
         </div> <!-- /.widget-header -->
         <div class="widget-content">
           <div class="stat">
-            <h4>This Month</h4>
+            <h4><%= t('.headers.small.this_month') %></h4>
             <p><span class="value"><%= nice_time(@person_time_calculator.hours_this_month) %></span></p>
             <p>
               <% if @person_time_calculator.diff_hours_this_month != 0 %>
@@ -288,7 +293,7 @@ $(function () {
             </p>
           </div> <!-- .stat -->
           <div class="stat">
-            <h4>Last Month</h4>
+            <h4><%= t('.headers.small.last_month') %></h4>
             <span class="value"><%= nice_time(@person_time_calculator.hours_last_month) %></span>
           </div> <!-- .stat -->
         </div> <!-- /widget-content -->
@@ -297,11 +302,11 @@ $(function () {
     <div class="col-md-3">
       <div class="widget stacked">
         <div class="widget-header">
-          <h3>Quarterly</h3>
+          <h3><%= t('.headers.quaterly') %></h3>
         </div> <!-- /.widget-header -->
         <div class="widget-content">
           <div class="stat">
-            <h4>This Quarter</h4>
+            <h4><%= t('.headers.small.this_quarter') %></h4>
             <p><span class="value"><%= nice_time(@person_time_calculator.hours_this_quarter) %></span></p>
             <p>
               <% if @person_time_calculator.diff_hours_this_quarter != 0 %>
@@ -315,7 +320,7 @@ $(function () {
             </p>
           </div> <!-- .stat -->
           <div class="stat">
-            <h4>Last Quarter</h4>
+            <h4><%= t('.headers.small.last_quarter') %></h4>
             <span class="value"><%= nice_time(@person_time_calculator.hours_last_quarter) %></span>
           </div> <!-- .stat -->
         </div> <!-- /widget-content -->
@@ -328,7 +333,7 @@ $(function () {
       <div class="col-md-12">
         <div class="widget stacked">
           <div class="widget-header">
-            <h3>Active Projects</h3>
+            <h3><%= t('.headers.active_projects') %></h3>
           </div> <!-- /.widget-header -->
           <div class="widget-content">
             <% if @projects.size > 0 -%>
@@ -359,14 +364,14 @@ $(function () {
       <div class="col-md-12">
         <div class="widget stacked">
           <div class="widget-header">
-            <h3>No Projects</h3>
+            <h3><%= t('.headers.no_projects') %></h3>
           </div> <!-- /.widget-header -->
           <div class="widget-content">
             <div class="no-records">
               <% if person_admin? %>
-                Please, add a new project to start tracking time... ;)
+                  <%= t('.messages.admin_add_project') %>
               <% else %>
-                Please, ask for a project to your boss... ;)
+                  <%= t('.messages.no_admin_add_project') %>
               <% end -%>
             </div>
           </div> <!-- /widget-content -->

@@ -91,17 +91,17 @@ class DashboardController < ApplicationController
   def populate_time_frames
     @time_frames = []
     date_today = Date.today
-    @time_frames << {label: 'This week', value: value_in_populate_time_frames(date_today, 'week')}
-    @time_frames << {label: 'Last week', value: value_in_populate_time_frames(date_today, 'week', 1)}
+    @time_frames << {label: :this_week, value: value_in_populate_time_frames(date_today, 'week')}
+    @time_frames << {label: :last_week, value: value_in_populate_time_frames(date_today, 'week', 1)}
 
-    @time_frames << {label: 'This month', value: value_in_populate_time_frames(date_today, 'month')}
-    @time_frames << {label: 'Last month', value: value_in_populate_time_frames(date_today, 'month', 1)}
+    @time_frames << {label: :this_month, value: value_in_populate_time_frames(date_today, 'month')}
+    @time_frames << {label: :last_month, value: value_in_populate_time_frames(date_today, 'month', 1)}
 
-    @time_frames << {label: 'This quarter', value: value_in_populate_time_frames(date_today, 'quarter')}
-    @time_frames << {label: 'Last quarter', value: value_in_populate_time_frames(date_today, 'quarter', 3)}
+    @time_frames << {label: :this_quarter, value: value_in_populate_time_frames(date_today, 'quarter')}
+    @time_frames << {label: :last_quarter, value: value_in_populate_time_frames(date_today, 'quarter', 3)}
 
-    @time_frames << {label: 'This year', value: value_in_populate_time_frames(date_today, 'year')}
-    @time_frames << {label: 'Last year', value: value_in_populate_time_frames(date_today, 'year', 1)}
+    @time_frames << {label: :this_year, value: value_in_populate_time_frames(date_today, 'year')}
+    @time_frames << {label: :last_year, value: value_in_populate_time_frames(date_today, 'year', 1)}
   end
 
   def value_in_populate_time_frames(date_today, interval, amount = 0)
