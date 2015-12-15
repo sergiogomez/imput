@@ -15,7 +15,7 @@ module MyHelper
   end
 
   def create_employee
-    visit '/people/new'
+    visit '/en/people/new'
 
     fill_in 'Firstname', with: 'Employee'
     fill_in 'Lastname', with: 'Doe'
@@ -27,7 +27,7 @@ module MyHelper
   end
 
   def assign_project_to_employee
-    visit '/projects'
+    visit '/en/projects'
 
     click_link Person.last.company.projects.first.name
 
@@ -37,7 +37,7 @@ module MyHelper
   end
 
   def assign_project_manager_to_employee
-    visit '/projects'
+    visit '/en/projects'
 
     click_link 'Project Managers'
 
@@ -47,13 +47,13 @@ module MyHelper
   end
 
   def create_another_client_and_project
-    visit '/clients/new'
+    visit '/en/clients/new'
 
     fill_in 'Name', with: 'Second Client'
 
     click_button 'Create Client'
 
-    visit '/projects/new'
+    visit '/en/projects/new'
 
     fill_in 'Name', with: 'Second Project'
     select('Second Client', from: 'Client')
