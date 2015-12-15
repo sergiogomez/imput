@@ -52,6 +52,7 @@ GEM
       sass (~> 3.2)
     builder (3.2.2)
     building (1.1.2)
+    byebug (8.2.1)
     capistrano (3.2.1)
       i18n
       rake (>= 10.0.0)
@@ -293,6 +294,7 @@ DEPENDENCIES
   binding_of_caller
   bootstrap-sass (~> 3.2.0)
   building
+  byebug
   capistrano-rails (~> 1.1)
   capybara
   chosen-sass-bootstrap-rails
