@@ -1,7 +1,7 @@
 es:
   simple_form:
     error_notification:
-      default_message: "Hay los siguientes errores en el forma"
+      default_message: "Por favor, revisa los siguientes errores:"
     "no": 'No'
     required:
       mark: '*'
