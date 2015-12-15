@@ -1,0 +1,79 @@
+es:
+  dashboard:
+    index:
+      actions:
+        add_client: Add Client
+        add_person: Add Person
+        add_project: Add Project
+        add_task: Add Task
+        all_time: All time
+        edit: Edit
+        last_month: Last month
+        last_week: Last week
+        last_year: Last year
+        new_timer: New timer
+        start: Start
+      headers:
+        active_projects: Active Projects
+        clients: Clients
+        daily: Daily
+        last_timer: 'Your last timer'
+        last_timer_with_time: 'Your last timer was tracked on <a href="%{href}" id="current_day" >%{anchor}</a>'
+        monthly: Monthly
+        no_projects: No Projects
+        projects: Projects
+        quaterly: Quaterly
+        quick_actions: 'Quick actions'
+        small:
+          last_month: Last Month
+          last_quarter: Last Quarter
+          last_week: Last Week
+          this_month: This Month
+          this_quarter: This Quarter
+          this_week: This Week
+          today: Today
+          yesterday: Yesterday
+        tasks: Tasks
+        weekly: Weekly
+      messages:
+        admin_add_project: Please, add a new project to start tracking time... ;)
+        no_admin_add_project: Please, ask your boss for a new project... ;)
+      paragraphs:
+        archived: Archived
+        no_timer_call_to_action: "You don't have any timers. <a href='%{href}'>Start your first timer now</a>"
+    reports:
+      actions:
+        change_filters: Change filters
+        export_to_csv: Export to CSV
+        export_to_excel: Export to Excel
+        run_report: Run Report
+      headers:
+        filters: Filters
+        results: Results
+        small:
+          client: Client
+          date: Date
+          hours: Hours
+          name: Name
+          person: Person
+          project: Project
+          task: Task
+          total: Total
+        time_entries: Time Entries
+      labels:
+        clients: Clients
+        people: People
+        projects: Projects
+        tasks: Tasks
+        time_frame: Time frame
+      labels_for_select:
+        last_month: Last month
+        last_quarter: Last quarter
+        last_week: Last week
+        last_year: Last year
+        this_month: This month
+        this_quarter: This quarter
+        this_week: This week
+        this_year: This year
+      messages:
+        no_time_entries: There are no time entries with the selected parameters.

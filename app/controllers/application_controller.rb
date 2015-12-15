@@ -8,11 +8,18 @@ class ApplicationController < ActionController::Base
   before_filter :authenticate_person_from_token!
   # This is Devise's authentication
   before_filter :authenticate_person!
+  before_action :set_locale
+
+
 
   helper_method :person_admin?
 
   def person_admin?
     current_person.admin
+  end
+
+  def default_url_options(options = {})
+    { :locale => I18n.locale }
   end
 
   private
@@ -29,4 +36,7 @@ class ApplicationController < ActionController::Base
       end
     end
 
+  def set_locale
+    I18n.locale = params[:locale] || I18n.default_locale
+  end
 end

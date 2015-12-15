@@ -44,6 +44,7 @@ group :development do
   gem 'building'
   gem 'highline'
   gem 'annotate'
+  gem 'i18n_yaml_sorter'
 end
 
 group :development, :test do
