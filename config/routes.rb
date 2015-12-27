@@ -76,7 +76,8 @@ Rails.application.routes.draw do
 
   require 'sidekiq/web'
   require 'sidetiq/web'
-  authenticate :admin_user do
+  constraint = lambda { |request| request.env["warden"].authenticate? and request.env['warden'].user.id == 1 }
+  constraints constraint do
     mount Sidekiq::Web => '/sidekiq'
   end
 
