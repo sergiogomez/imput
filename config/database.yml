@@ -80,6 +80,6 @@ test:
 #
 production:
   <<: *default
-  database: imput_production
-  username: imput
+  database: <%= ENV['IMPUT_DATABASE'] %>
+  username: <%= ENV['IMPUT_DATABASE_USER'] %>
   password: <%= ENV['IMPUT_DATABASE_PASSWORD'] %>
