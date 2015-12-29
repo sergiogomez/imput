@@ -23,6 +23,10 @@ After a few months we launched a free single user version and a paid one for a m
 
 * rake spec #to run all tests and see they are passing! :)
 
+### Is there a free hosted version? ###
+
+Yes! You can use it at [app.imput.io](https://app.imput.io/)
+
 ### Licensing
 
 The source code is licensed under GPL v3. License is available [here](/LICENSE).
