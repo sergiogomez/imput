@@ -15,7 +15,7 @@
               <tr>
                 <td valign="middle" class="templateButtonContent">
                   <div mc:edit="std_content02">
-                    <%= link_to 'Your timer', time_day_url(@time_entry.spent_on.year, @time_entry.spent_on.month, @time_entry.spent_on.day) %>
+                    <%= link_to 'Your timer', time_day_url(year: @time_entry.spent_on.year, month: @time_entry.spent_on.month, day: @time_entry.spent_on.day, locale: I18n.locale) %>
                   </div>
                 </td>
               </tr>
