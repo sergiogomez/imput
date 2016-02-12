@@ -1,0 +1,9 @@
+es:
+  activerecord:
+    models:
+      client: Cliente
+    attributes:
+      client:
+        address: "AddressXXX"
+        name: "NameXXX"
+        notes: "NotesXXX"
