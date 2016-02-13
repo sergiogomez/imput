@@ -2,7 +2,7 @@
   <div class="col-md-12">
     <div class="widget stacked">
       <div class="widget-header">
-        <h3>Client</h3>
+        <h3><%= t('clients.edit.headers.client')%></h3>
       </div> <!-- /widget-header -->
       <div class="widget-content">
         <%= simple_form_for @client, html: { class: "form-horizontal col-md-7"} do |f| %>
@@ -24,7 +24,7 @@
 
           <div class="form-actions text-center">
             <%= f.button :submit, class: "btn btn-success" %>
-            <%= link_to "Cancel", clients_path, class: "btn btn-default" %>
+            <%= link_to t('helpers.submit.cancel'), clients_path, class: "btn btn-default" %>
           </div>
         <% end %>
       </div> <!-- /widget-content -->

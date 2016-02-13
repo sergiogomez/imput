@@ -2,18 +2,18 @@
   <div class="col-md-12">
     <div class="widget stacked">
       <div class="widget-header">
-        <h3>Import Clients from CSV</h3>
+        <h3><%= t('.header') %></h3>
       </div> <!-- /widget-header -->
       <div class="widget-content">
         <div class="col-lg-8">
-          <p><strong>Important: </strong>You need to have these columns in the first line of your CSV file</p>
-          <pre>Client Name,Address</pre>
-          <p>The column <code>Client Name</code> can't be blank.</p>
+          <p><%= t('.instructions.line_1_html') %></p>
+          <%= t('.instructions.line_2_html') %>
+          <p><%= t('.instructions.line_3_html') %></p>
         </div>
         <%= form_tag import_clients_file_path, multipart: true, class: "form-horizontal col-md-7" do %>
           <fieldset>
             <div class="form-group">
-              <%= label_tag :file, nil, class: "control-label col-lg-4", required: true %>
+              <%= label_tag t('.file'), nil, class: "control-label col-lg-4", required: true %>
               <div class="col-lg-8">
                 <%= file_field_tag :file, class: "form-control", required: true %>
               </div>
@@ -21,8 +21,8 @@
           </fieldset>
 
           <div class="form-actions text-center">
-            <%= submit_tag "Upload and Import", class: "btn btn-success" %>
-            <%= link_to "Cancel", clients_path, class: "btn btn-default" %>
+            <%= submit_tag t('helpers.submit.submit_and_upload'), class: "btn btn-success" %>
+            <%= link_to t('helpers.submit.cancel'), clients_path, class: "btn btn-default" %>
           </div>
         <% end %>
       </div> <!-- /widget-content -->

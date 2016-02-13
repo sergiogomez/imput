@@ -2,39 +2,39 @@
   <div class="col-md-12">
     <div class="widget stacked ">
       <div class="widget-header">
-        <h3>Listing clients</h3>
+        <h3><%= t('.headers.client_list') %></h3>
       </div> <!-- /.widget-header -->
       <div class="widget-content">
         <p>
-          <%= link_to 'New Client', new_client_path, class: "btn btn-primary" %>
-          <%= link_to 'Export to Excel', clients_path(format: "xlsx"), class: "btn btn-default" %>
-          <%= link_to 'Export to CSV', clients_path(format: "csv"), class: "btn btn-default" %>
-          <%= link_to 'Import from CSV', import_clients_path, class: "btn btn-default" %>
+          <%= link_to t('.actions.new_client'), new_client_path, class: "btn btn-primary" %>
+          <%= link_to t('.actions.export_excel'), clients_path(format: "xlsx"), class: "btn btn-default" %>
+          <%= link_to t('.actions.export_csv'), clients_path(format: "csv"), class: "btn btn-default" %>
+          <%= link_to t('.actions.import_csv'), import_clients_path, class: "btn btn-default" %>
         </p>
         <% if @clients.size > 0 %>
           <div class="panel panel-default">
             <div class="panel-body">
               <div class="list-group">
                 <% @clients.each do |client| %>
-                  <div class="list-group-item<%= " disabled" if !client.enabled? %>">
+                  <div class="list-group-item<%= " disabled" unless client.enabled? %>">
                     <div class="pull-right">
-                      <%= link_to 'Edit', edit_client_path(client), class: "btn btn-default btn-xs" %>
+                      <%= link_to t('.actions.edit'), edit_client_path(client), class: "btn btn-default btn-xs" %>
                       <% if client.enabled %>
-                        <%= link_to 'Archive', disable_client_path(client), class: "btn btn-default btn-xs", method: :patch if @clients.enabled.size > 1 and client.projects.enabled.size == 0 %>
+                        <%= link_to t('.actions.archive'), disable_client_path(client), class: "btn btn-default btn-xs", method: :patch if @clients.enabled.size > 1 and client.projects.enabled.size == 0 %>
                       <% else %>
-                        <%= link_to 'Reopen', enable_client_path(client), class: "btn btn-default btn-xs", method: :patch %>
+                        <%= link_to t('.actions.reopen'), enable_client_path(client), class: "btn btn-default btn-xs", method: :patch %>
                       <% end -%>
                       <% if client.projects.size == 0 and client.time_entered == 0 and @clients.enabled.size > 1 %>
-                        <%= link_to 'Delete', client, method: :delete, data: { confirm: 'Are you sure?' }, class: "btn btn-danger btn-xs" %>
+                        <%= link_to t('.actions.delete'), client, method: :delete, data: { confirm: t('.messages.confirmation') }, class: "btn btn-danger btn-xs" %>
                       <% else %>
-                        <%= link_to 'Delete', '#', class: "btn btn-danger btn-xs disabled" %>
+                        <%= link_to t('.actions.delete'), '#', class: "btn btn-danger btn-xs disabled" %>
                       <% end -%>
                     </div>
                     <h5 class="list-group-item-heading"><%= link_to client.name, edit_client_path(client) %></h5>
                     <p class="list-group-item-text">
-                      Projects: <%= client.projects.enabled.size %> |
-                      Archived projects: <%= client.projects.disabled.size %> |
-                      Tracked time: <%= nice_time(client.time_entered) %></p>
+                      <%= t('.sub_headers.projects') %>: <%= client.projects.enabled.size %> |
+                      <%= t('.sub_headers.archived_projects') %>: <%= client.projects.disabled.size %> |
+                      <%= t('.sub_headers.tracked_time') %>: <%= nice_time(client.time_entered) %></p>
                   </div>
                 <% end -%>
               </div>

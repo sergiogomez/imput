@@ -1,0 +1,8 @@
+en:
+  companies:
+    show:
+      actions:
+        delete: Delete account
+      header: Account Settings
+      messages:
+        confirmation: 'You will lose everything. Your time entries, your projects, your clients... And your account!!!! Are you sure? Really?'

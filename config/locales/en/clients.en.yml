@@ -1,0 +1,30 @@
+en:
+  clients:
+    edit:
+      headers:
+        client: Client
+    import:
+      file: File
+      header: Import Clients from CSV
+      instructions:
+        line_1_html: "<strong>Important: </strong>You need to have these columns in the first line of your CSV file"
+        line_2_html: "<pre>Client Name,Address</pre>"
+        line_3_html: "The column <code>Client Name</code> can't be blank."
+    index:
+      actions:
+        archive: Archive
+        delete: Delete
+        edit: Edit
+        export_csv: Export to CSV
+        export_excel: Export to Excel
+        import_csv: Import from CSV
+        new_client: New Client
+        reopen: Reopen
+      headers:
+        client_list: Client list
+      messages:
+        confirmation: 'Are you sure?'
+      sub_headers:
+        archived_projects: Archived projects
+        projects: Projects
+        tracked_time: Tracked time

@@ -1,0 +1,30 @@
+es:
+  clients:
+    edit:
+      headers:
+        client: ClientXXX
+    import:
+      file: Fichero
+      header: Import Clients from CSVXXX
+      instructions:
+        line_1_html: "<strong>Important: </strong>You need to have these columns in the first line of your CSV fileXXX"
+        line_2_html: "<pre>Client Name,Address</pre>XXX"
+        line_3_html: "The column <code>Client Name</code> can't be blank.XXX"
+    index:
+      actions:
+        archive: ArchiveXXX
+        delete: DeleteXXX
+        edit: EditXXX
+        export_csv: Export to CSVXXX
+        export_excel: Export to ExcelXXX
+        import_csv: Import from CSVXXX
+        new_client: New ClientXXX
+        reopen: ReopenXXX
+      headers:
+        client_list: Client listXXX
+      messages:
+        confirmation: 'Are you sure?XXX'
+      sub_headers:
+        archived_projects: Archived projectsXXX
+        projects: ProjectsXXX
+        tracked_time: Tracked timeXXX

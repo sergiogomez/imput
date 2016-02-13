@@ -1,0 +1,8 @@
+es:
+  helpers:
+    submit:
+      cancel: "Cancelar"
+      create: "Crear %{model}"
+      submit: "Guardar %{model}"
+      submit_and_upload: "Subir & Importar"
+      update: "Actualizar %{model}"

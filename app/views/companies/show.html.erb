@@ -2,12 +2,13 @@
   <div class="col-md-12">
     <div class="widget stacked">
       <div class="widget-header">
-        <h3>Account Settings</h3>
+        <h3><%= t('.header') %></h3>
       </div> <!-- /widget-header -->
       <div class="widget-content">
         <div class="col-md-offset-2">
           <p>
-            <%= link_to "Delete account", delete_account_path, class: "btn btn-danger btn-xs", method: :delete, data: { confirm: 'You will lose everything. Your time entries, your projects, your clients... And your account!!!! Are you sure? Really??'} %>
+            <%= link_to t('.actions.delete'), delete_account_path, class: "btn btn-danger btn-xs", method: :delete,
+                        data: { confirm: t('.messages.confirmation')} %>
           </p>
         </div>
       </div> <!-- /widget-content -->
