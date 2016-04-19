@@ -80,9 +80,9 @@ Rails.application.configure do
   config.action_controller.asset_host = 'app.imput.io'
   config.action_mailer.asset_host = 'https://app.imput.io'
   config.action_mailer.smtp_settings = {
-    :address   => "smtp.mandrillapp.com",
+    :address   => "smtp.sendgrid.net",
     :port      => 587,
-    :user_name => ENV["MANDRILL_USERNAME"],
-    :password  => ENV["MANDRILL_API_KEY"]
+    :user_name => ENV["SENDGRID_USERNAME"],
+    :password  => ENV["SENDGRID_PASSWORD"]
   }
 end

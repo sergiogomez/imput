@@ -21,7 +21,7 @@ gem 'simple-navigation-bootstrap'
 gem 'font-awesome-rails'
 gem 'axlsx_rails'
 gem 'chosen-sass-bootstrap-rails'
-gem 'mandrill-api'
+gem 'sendgrid-ruby'
 gem 'newrelic_rpm'
 gem 'sidekiq'
 gem 'sinatra', '>= 1.3.0', :require => nil
