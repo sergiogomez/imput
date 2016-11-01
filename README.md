@@ -10,7 +10,7 @@ After a few months we launched a free single user version and a paid one for a m
 
 ### Technologhies ###
 
-* Our app uses Ruby 2.1.1 & Rails 4.1.11 
+* Our app uses Ruby 2.1.10 & Rails 4.1.11 
 * We also use Redis 2.X or higher.
 * Our Database is PostgreSQL 9.3 or higher
 
