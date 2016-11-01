@@ -33,6 +33,7 @@ gem 'rack-cors', :require => 'rack/cors'
 
 gem 'unicorn'
 gem "rack-timeout"
+gem 'redis'
 
 group :development do
   gem 'binding_of_caller'

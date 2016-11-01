@@ -321,6 +321,7 @@ DEPENDENCIES
   rails (= 4.1.11)
   rails_12factor
   rails_layout
+  redis
   roadie (~> 2.4.0)
   rollbar
   rspec-rails (~> 3.0.0)
