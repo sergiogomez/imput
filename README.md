@@ -25,7 +25,7 @@ After a few months we launched a free single user version and a paid one for a m
 
 ### Is there a free hosted version? ###
 
-Yes! You can use it at [app.imput.io](https://app.imput.io/)
+Yes! You can use it at [imput-pro.herokuapp.com](https://imput-pro.herokuapp.com/)
 
 ### Licensing
 

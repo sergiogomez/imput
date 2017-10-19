@@ -76,9 +76,9 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  config.action_mailer.default_url_options = { host: 'app.imput.io' }
-  config.action_controller.asset_host = 'app.imput.io'
-  config.action_mailer.asset_host = 'https://app.imput.io'
+  config.action_mailer.default_url_options = { host: 'imput-pro.herokuapp.com' }
+  config.action_controller.asset_host = 'imput-pro.herokuapp.com'
+  config.action_mailer.asset_host = 'https://imput-pro.herokuapp.com'
   config.action_mailer.smtp_settings = {
     :address   => "smtp.sendgrid.net",
     :port      => 587,
