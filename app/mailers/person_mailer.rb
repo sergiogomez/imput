@@ -1,6 +1,6 @@
 class PersonMailer < ActionMailer::Base
   helper ApplicationHelper
-  default from: "imput.io <team@imput.io>", css: 'email'
+  default from: "imput <imput@sergio-gomez.com>", css: 'email'
   layout 'email'
 
   def timer_started(time_entry_id)
